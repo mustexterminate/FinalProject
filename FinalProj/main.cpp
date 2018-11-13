@@ -3,8 +3,8 @@ FILE : main.cpp (csci3260 2018-2019 Final Project)
 *********************************************************/
 /*********************************************************
 Student Information
-Student ID: 
-Student Name: Alexander Yoo
+Student ID: 1155123051\1155123323
+Student Name: Alexander Yoo\Ernest Tran
 *********************************************************/
 
 #include "Dependencies\glew\glew.h"
@@ -47,30 +47,19 @@ float eyePositionSpecY = 4.0f;
 bool spin = true;
 bool mouse = false;
 
+//
 GLuint textInd = 2;
 GLint programID;
 GLuint textureID;
 
-GLsizei drawSizeA;
-GLuint vertexArrayIDA;
+//Model Information
+GLuint VAOs[3];
+GLuint vertexBuffers[3];
+GLuint uvBuffers[3];
+GLuint normalBuffers[3];
+GLuint drawSizes[3];
 GLuint textures[5];
-GLuint vertexBufferA;
 
-GLsizei drawSizeB;
-GLuint vertexArrayIDB;
-GLuint vertexBufferB;
-
-GLsizei drawSizeC;
-GLuint vertexArrayIDC;
-GLuint vertexBufferC;
-
-GLuint uvBufferA;
-GLuint uvBufferB;
-GLuint uvBufferC;
-
-GLuint normalbufferA;
-GLuint normalbufferB;
-GLuint normalbufferC;
 //a series utilities for setting shader parameters 
 void setMat4(const std::string &name, glm::mat4& value)
 {
@@ -418,26 +407,27 @@ void sendDataToOpenGL()
 	textures[3] = loadBMP_custom("sources/theme2.bmp");
 	textures[4] = loadBMP_custom("sources/theme3.bmp");
 
+	//Model 1
 	bool res = loadOBJ("sources/jeep.obj", verticesA, uvsA, normalsA);
-	glGenVertexArrays(1, &vertexArrayIDA);
-	glBindVertexArray(vertexArrayIDA);
+	glGenVertexArrays(1, &VAOs[0]);
+	glBindVertexArray(VAOs[0]);
 
-	glGenBuffers(1, &vertexBufferA);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferA);
+	glGenBuffers(1, &vertexBuffers[0]);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[0]);
 	glBufferData(GL_ARRAY_BUFFER, verticesA.size() * sizeof(glm::vec3), &verticesA[0], GL_STATIC_DRAW);
 
-	drawSizeA = verticesA.size();
+	drawSizes[0] = verticesA.size();
 
-	glGenBuffers(1, &uvBufferA);
-	glBindBuffer(GL_ARRAY_BUFFER, uvBufferA);
+	glGenBuffers(1, &uvBuffers[0]);
+	glBindBuffer(GL_ARRAY_BUFFER, uvBuffers[0]);
 	glBufferData(GL_ARRAY_BUFFER, uvsA.size() * sizeof(glm::vec2), &uvsA[0], GL_STATIC_DRAW);
 
-	glGenBuffers(1, &normalbufferA);
-	glBindBuffer(GL_ARRAY_BUFFER, normalbufferA);
+	glGenBuffers(1, &normalBuffers[0]);
+	glBindBuffer(GL_ARRAY_BUFFER, normalBuffers[0]);
 	glBufferData(GL_ARRAY_BUFFER, normalsA.size() * sizeof(glm::vec3), &normalsA[0], GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferA);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[0]);
 	glVertexAttribPointer(
 		0,                  // attribute
 		3,                  // size
@@ -448,7 +438,7 @@ void sendDataToOpenGL()
 	);
 	// 2nd attribute buffer : UVs
 	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, uvBufferA);
+	glBindBuffer(GL_ARRAY_BUFFER, uvBuffers[0]);
 	glVertexAttribPointer(
 		1,                                // attribute
 		2,                                // size : U+V => 2
@@ -459,7 +449,7 @@ void sendDataToOpenGL()
 	);
 
 	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ARRAY_BUFFER, normalbufferA);
+	glBindBuffer(GL_ARRAY_BUFFER, normalBuffers[0]);
 	glVertexAttribPointer(
 		2,
 		3,
@@ -469,26 +459,27 @@ void sendDataToOpenGL()
 		(void*)0
 	);
 
+	//Model 2
 	res = loadOBJ("sources/block.obj", verticesB, uvsB, normalsB);
-	glGenVertexArrays(1, &vertexArrayIDB);
-	glBindVertexArray(vertexArrayIDB);
+	glGenVertexArrays(1, &VAOs[1]);
+	glBindVertexArray(VAOs[1]);
 
-	glGenBuffers(1, &vertexBufferB);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferB);
+	glGenBuffers(1, &vertexBuffers[1]);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[1]);
 	glBufferData(GL_ARRAY_BUFFER, verticesB.size() * sizeof(glm::vec3), &verticesB[0], GL_STATIC_DRAW);
 
-	drawSizeB = verticesB.size();
+	drawSizes[1] = verticesB.size();
 
-	glGenBuffers(1, &uvBufferB);
-	glBindBuffer(GL_ARRAY_BUFFER, uvBufferB);
+	glGenBuffers(1, &uvBuffers[1]);
+	glBindBuffer(GL_ARRAY_BUFFER, uvBuffers[1]);
 	glBufferData(GL_ARRAY_BUFFER, uvsB.size() * sizeof(glm::vec2), &uvsB[0], GL_STATIC_DRAW);
 
-	glGenBuffers(1, &normalbufferB);
-	glBindBuffer(GL_ARRAY_BUFFER, normalbufferB);
+	glGenBuffers(1, &normalBuffers[1]);
+	glBindBuffer(GL_ARRAY_BUFFER, normalBuffers[1]);
 	glBufferData(GL_ARRAY_BUFFER, normalsB.size() * sizeof(glm::vec3), &normalsB[0], GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferB);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[1]);
 	glVertexAttribPointer(
 		0,                  // attribute. 
 		3,                  // size
@@ -499,7 +490,7 @@ void sendDataToOpenGL()
 	);
 	// 2nd attribute buffer : UVs
 	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, uvBufferB);
+	glBindBuffer(GL_ARRAY_BUFFER, uvBuffers[1]);
 	glVertexAttribPointer(
 		1,                                // attribute
 		2,                                // size : U+V => 2
@@ -509,7 +500,7 @@ void sendDataToOpenGL()
 		(void*)0                          // array buffer offset
 	);
 	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ARRAY_BUFFER, normalbufferB);
+	glBindBuffer(GL_ARRAY_BUFFER, normalBuffers[1]);
 	glVertexAttribPointer(
 		2,
 		3,
@@ -518,26 +509,28 @@ void sendDataToOpenGL()
 		0,
 		(void*)0
 	);
-	res = loadOBJ("sources/plane.obj", verticesC, uvsC, normalsC);
-	glGenVertexArrays(1, &vertexArrayIDC);
-	glBindVertexArray(vertexArrayIDC);
 
-	glGenBuffers(1, &vertexBufferC);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferC);
+	//Model 3
+	res = loadOBJ("sources/plane.obj", verticesC, uvsC, normalsC);
+	glGenVertexArrays(1, &VAOs[2]);
+	glBindVertexArray(VAOs[2]);
+
+	glGenBuffers(1, &vertexBuffers[2]);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[2]);
 	glBufferData(GL_ARRAY_BUFFER, verticesC.size() * sizeof(glm::vec3), &verticesC[0], GL_STATIC_DRAW);
 
-	drawSizeC = verticesC.size();
+	drawSizes[2] = verticesC.size();
 
-	glGenBuffers(1, &uvBufferC);
-	glBindBuffer(GL_ARRAY_BUFFER, uvBufferC);
+	glGenBuffers(1, &uvBuffers[2]);
+	glBindBuffer(GL_ARRAY_BUFFER, uvBuffers[2]);
 	glBufferData(GL_ARRAY_BUFFER, uvsC.size() * sizeof(glm::vec2), &uvsC[0], GL_STATIC_DRAW);
 
-	glGenBuffers(1, &normalbufferC);
-	glBindBuffer(GL_ARRAY_BUFFER, normalbufferC);
+	glGenBuffers(1, &normalBuffers[2]);
+	glBindBuffer(GL_ARRAY_BUFFER, normalBuffers[2]);
 	glBufferData(GL_ARRAY_BUFFER, normalsC.size() * sizeof(glm::vec3), &normalsC[0], GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferC);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[2]);
 	glVertexAttribPointer(
 		0,                  // attribute.
 		3,                  // size
@@ -548,7 +541,7 @@ void sendDataToOpenGL()
 	);
 	// 2nd attribute buffer : UVs
 	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, uvBufferC);
+	glBindBuffer(GL_ARRAY_BUFFER, uvBuffers[2]);
 	glVertexAttribPointer(
 		1,                                // attribute
 		2,                                // size : U+V => 2
@@ -558,7 +551,7 @@ void sendDataToOpenGL()
 		(void*)0                          // array buffer offset
 	);
 	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ARRAY_BUFFER, normalbufferC);
+	glBindBuffer(GL_ARRAY_BUFFER, normalBuffers[2]);
 	glVertexAttribPointer(
 		2,
 		3,
@@ -587,15 +580,16 @@ void paintGL(void)
 	vec3 lightPosition(lightPositionSpecX, lightPositionSpecY, 2.0f);
 	glUniform3fv(lightPositionUniformLocation, 1, &lightPosition[0]);
 
+	//Projection
 	glm::mat4 projection = glm::perspective(glm::radians(80.0f), 4.0f/3.0f, 0.1f, 100.0f);
 	GLint projectionLocation = glGetUniformLocation(programID, "projection");
 	glUniformMatrix3fv(projectionLocation, 1, GL_FALSE, &projection[0][0]);
 
 	// Camera world space location
 	glm::vec3 direction(
-		cos(verticalAngle) * sin(horizontalAngle),
-		sin(verticalAngle),
-		cos(verticalAngle) * cos(horizontalAngle)
+		cos(verticalAngle) * sin(horizontalAngle), //X
+		sin(verticalAngle), //Y
+		cos(verticalAngle) * cos(horizontalAngle) //Z
 	);
 	glm::mat4 view = glm::lookAt(cameraPosition, cameraFront + direction, cameraUp);
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
@@ -614,6 +608,7 @@ void paintGL(void)
 	GLint specLightUniformLocation = glGetUniformLocation(programID, "lightPowerSpec");
 	glUniform1f(specLightUniformLocation, lightPowerSpec);
 
+	// Matrix Transformation
 	modelATransformMatrix = glm::translate(glm::mat4(),
 		glm::vec3(0.0f, 0.0f, z_delta * z_press_num));
 	modelATransformMatrix = glm::rotate(modelATransformMatrix, glm::radians(yRotate_delta*y_rotate_press_num),
@@ -621,31 +616,33 @@ void paintGL(void)
 	GLint transformationMatrixLocation = glGetUniformLocation(programID, "modelTransformMatrix");
 	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelATransformMatrix[0][0]);
 
+	//Matrix
 	glm::mat4 PVM = projection * view * modelATransformMatrix;
 	GLuint matrixLocation = glGetUniformLocation(programID, "PVM");
 	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
 
+	//Model 1
 	glBindVertexArray(01);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	glUniform1i(textureID, 0);
-	glDrawArrays(GL_TRIANGLES, 0, drawSizeA);
+	glDrawArrays(GL_TRIANGLES, 0, drawSizes[0]);
 
+	//Model 2
 	glBindVertexArray(02);
 	if (spin) {
 		modelBTransformMatrix = glm::rotate(modelBTransformMatrix, glm::radians(yRotate_delta * 3),
 			glm::vec3(0, 1, 0));
 	}
 	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelBTransformMatrix[0][0]);
-	GLint modelTransformMatrixUniformLocation =
-		glGetUniformLocation(programID, "modelTransformMatrix");
 	PVM = projection * view * modelBTransformMatrix;
 	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, textures[1]);
 	glUniform1i(textureID, 1);
-	glDrawArrays(GL_TRIANGLES, 0, drawSizeB);
+	glDrawArrays(GL_TRIANGLES, 0, drawSizes[1]);
 
+	//Model 3
 	glBindVertexArray(03);
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, textures[textInd]);
@@ -653,7 +650,7 @@ void paintGL(void)
 	PVM = projection * view * modelMatrix;
 	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelMatrix[0][0]);
 	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
-	glDrawArrays(GL_TRIANGLES, 0, drawSizeC);
+	glDrawArrays(GL_TRIANGLES, 0, drawSizes[2]);
 	glFlush();
 	glutPostRedisplay();
 }
@@ -671,9 +668,6 @@ int main(int argc, char *argv[])
 	glutCreateWindow("Assignment 2");
 	glutReshapeWindow(800, 600);
 	//TODO:
-	/*Register different CALLBACK function for GLUT to response
-	with different events, e.g. window sizing, mouse click or
-	keyboard stroke */
 	initializedGL();
 	glutDisplayFunc(paintGL);
 	
