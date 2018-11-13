@@ -30,7 +30,7 @@ float verticalAngle = 0.0f;
 
 float speed = 3.0f;
 float mouseSpeed = 0.02f;
-
+//Interaction Variable
 float y_delta = 0.1f;
 float z_delta = 0.1f;
 float yRotate_delta = 0.1f;
