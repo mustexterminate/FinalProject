@@ -401,14 +401,14 @@ void sendDataToOpenGL()
 	std::vector< glm::vec2 > uvsC;
 	std::vector< glm::vec3 > normalsC;
 
-	textures[0] = loadBMP_custom("sources/texture/camo.bmp");
+	textures[0] = loadBMP_custom("sources/texture/Trident_UV.bmp");
 	textures[1] = loadBMP_custom("sources/texture/camo.bmp");
 	textures[2] = loadBMP_custom("sources/texture/theme1.bmp");
 	textures[3] = loadBMP_custom("sources/texture/theme2.bmp");
 	textures[4] = loadBMP_custom("sources/texture/theme3.bmp");
 
 	//Model 1
-	bool res = loadOBJ("sources/jeep.obj", verticesA, uvsA, normalsA);
+	loadOBJ("sources/jeep.obj", verticesA, uvsA, normalsA);
 	glGenVertexArrays(1, &VAOs[0]);
 	glBindVertexArray(VAOs[0]);
 
@@ -460,7 +460,7 @@ void sendDataToOpenGL()
 	);
 
 	//Model 2
-	res = loadOBJ("sources/rock.obj", verticesB, uvsB, normalsB);
+	loadOBJ("sources/rock.obj", verticesB, uvsB, normalsB);
 	glGenVertexArrays(1, &VAOs[1]);
 	glBindVertexArray(VAOs[1]);
 
@@ -511,7 +511,7 @@ void sendDataToOpenGL()
 	);
 
 	//Model 3
-	res = loadOBJ("sources/Plane.obj", verticesC, uvsC, normalsC);
+	loadOBJ("sources/Plane.obj", verticesC, uvsC, normalsC);
 	glGenVertexArrays(1, &VAOs[2]);
 	glBindVertexArray(VAOs[2]);
 
@@ -613,6 +613,7 @@ void paintGL(void)
 		glm::vec3(0.0f, 0.0f, z_delta * z_press_num));
 	modelATransformMatrix = glm::rotate(modelATransformMatrix, glm::radians(yRotate_delta*y_rotate_press_num),
 		glm::vec3(0, 1, 0));
+	modelATransformMatrix = glm::scale(modelATransformMatrix, vec3(0.5f));
 	GLint transformationMatrixLocation = glGetUniformLocation(programID, "modelTransformMatrix");
 	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelATransformMatrix[0][0]);
 
