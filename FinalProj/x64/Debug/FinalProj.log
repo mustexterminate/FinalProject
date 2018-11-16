@@ -1,15 +1,1 @@
-﻿  main.cpp
-c:\users\abyoo\source\repos\finalproj\finalproj\main.cpp(197): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\abyoo\source\repos\finalproj\finalproj\main.cpp(200): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\abyoo\source\repos\finalproj\finalproj\main.cpp(203): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\abyoo\source\repos\finalproj\finalproj\main.cpp(206): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\abyoo\source\repos\finalproj\finalproj\main.cpp(209): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\abyoo\source\repos\finalproj\finalproj\main.cpp(212): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\abyoo\source\repos\finalproj\finalproj\main.cpp(215): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\abyoo\source\repos\finalproj\finalproj\main.cpp(218): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\abyoo\source\repos\finalproj\finalproj\main.cpp(221): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\abyoo\source\repos\finalproj\finalproj\main.cpp(224): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\abyoo\source\repos\finalproj\finalproj\main.cpp(429): warning C4267: '=': conversion from 'size_t' to 'GLsizei', possible loss of data
-c:\users\abyoo\source\repos\finalproj\finalproj\main.cpp(480): warning C4267: '=': conversion from 'size_t' to 'GLsizei', possible loss of data
-c:\users\abyoo\source\repos\finalproj\finalproj\main.cpp(529): warning C4267: '=': conversion from 'size_t' to 'GLsizei', possible loss of data
-  FinalProj.vcxproj -> C:\Users\abyoo\source\repos\FinalProj\x64\Debug\FinalProj.exe
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Platforms\x64\PlatformToolsets\v141\Toolset.targets(36,5): error MSB8036: The Windows SDK version 10.0.17134.0 was not found. Install the required version of Windows SDK or change the SDK version in the project property pages or by right-clicking the solution and selecting "Retarget solution".
