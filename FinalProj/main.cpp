@@ -401,14 +401,14 @@ void sendDataToOpenGL()
 	std::vector< glm::vec2 > uvsC;
 	std::vector< glm::vec3 > normalsC;
 
-	textures[0] = loadBMP_custom("sources/jeep.bmp");
-	textures[1] = loadBMP_custom("sources/camo.bmp");
-	textures[2] = loadBMP_custom("sources/theme1.bmp");
-	textures[3] = loadBMP_custom("sources/theme2.bmp");
-	textures[4] = loadBMP_custom("sources/theme3.bmp");
+	textures[0] = loadBMP_custom("sources/texture/Trident_UV.bmp");
+	textures[1] = loadBMP_custom("sources/texture/camo.bmp");
+	textures[2] = loadBMP_custom("sources/texture/theme1.bmp");
+	textures[3] = loadBMP_custom("sources/texture/theme2.bmp");
+	textures[4] = loadBMP_custom("sources/texture/theme3.bmp");
 
 	//Model 1
-	bool res = loadOBJ("sources/Trident.obj", verticesA, uvsA, normalsA);
+	bool res = loadOBJ("sources/spaceCraft.obj", verticesA, uvsA, normalsA);
 	glGenVertexArrays(1, &VAOs[0]);
 	glBindVertexArray(VAOs[0]);
 
@@ -460,7 +460,7 @@ void sendDataToOpenGL()
 	);
 
 	//Model 2
-	res = loadOBJ("sources/block.obj", verticesB, uvsB, normalsB);
+	res = loadOBJ("sources/rock.obj", verticesB, uvsB, normalsB);
 	glGenVertexArrays(1, &VAOs[1]);
 	glBindVertexArray(VAOs[1]);
 
@@ -511,7 +511,7 @@ void sendDataToOpenGL()
 	);
 
 	//Model 3
-	res = loadOBJ("sources/plane.obj", verticesC, uvsC, normalsC);
+	res = loadOBJ("sources/planet.obj", verticesC, uvsC, normalsC);
 	glGenVertexArrays(1, &VAOs[2]);
 	glBindVertexArray(VAOs[2]);
 
