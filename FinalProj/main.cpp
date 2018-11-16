@@ -19,15 +19,14 @@ using namespace std;
 using glm::vec3;
 using glm::mat4;
 
-glm::vec3 cameraPosition = glm::vec3(0, 9, -9);
-glm::vec3 cameraFront = glm::vec3(0, 0, -1);
-glm::vec3 cameraUp = glm::vec3(0, 1, 0);
+
 glm::mat4 modelBTransformMatrix = glm::translate(glm::mat4(),
 	glm::vec3(6, 3, 0.0f));
 
+/*Camera Movement Variables
 float horizontalAngle = 3.14f;
 float verticalAngle = 0.0f;
-
+*/
 float speed = 3.0f;
 float mouseSpeed = 0.02f;
 //Interaction Variable
@@ -232,12 +231,13 @@ void move(int key, int x, int y)
 
 void PassiveMouse(int x, int y)
 {
+	/*
 	if (mouse) {
 		glutWarpPointer(800 / 2, 600 / 2);
 		horizontalAngle += mouseSpeed * float(800 / 2 - x) / 30;
 		verticalAngle += mouseSpeed * float(600 / 2 - y) / 30;
 	}
-	
+	*/
 }
 
 bool loadOBJ(
@@ -408,7 +408,7 @@ void sendDataToOpenGL()
 	textures[4] = loadBMP_custom("sources/texture/theme3.bmp");
 
 	//Model 1
-	loadOBJ("sources/jeep.obj", verticesA, uvsA, normalsA);
+	loadOBJ("sources/spaceCraft.obj", verticesA, uvsA, normalsA);
 	glGenVertexArrays(1, &VAOs[0]);
 	glBindVertexArray(VAOs[0]);
 
@@ -586,12 +586,16 @@ void paintGL(void)
 	glUniformMatrix3fv(projectionLocation, 1, GL_FALSE, &projection[0][0]);
 
 	// Camera world space location
+	/*
 	glm::vec3 direction(
 		cos(verticalAngle) * sin(horizontalAngle), //X
 		sin(verticalAngle), //Y
 		cos(verticalAngle) * cos(horizontalAngle) //Z
 	);
-	glm::mat4 view = glm::lookAt(cameraPosition, cameraFront + direction, cameraUp);
+	*/
+	glm::mat4 view = glm::lookAt(vec3(0, 9, -9), //Position
+		vec3(0, 0, -1), //Look At
+		vec3(0, 1, 0)); //Height
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 	glm::mat4 modelATransformMatrix = glm::mat4(1.0f);
 	GLint modelMatrixUniformLocation =
@@ -610,10 +614,10 @@ void paintGL(void)
 
 	// Matrix Transformation
 	modelATransformMatrix = glm::translate(glm::mat4(),
-		glm::vec3(0.0f, 0.0f, z_delta * z_press_num));
+		glm::vec3(0.0f, 5.0f, z_delta * z_press_num));
 	modelATransformMatrix = glm::rotate(modelATransformMatrix, glm::radians(yRotate_delta*y_rotate_press_num),
 		glm::vec3(0, 1, 0));
-	modelATransformMatrix = glm::scale(modelATransformMatrix, vec3(0.5f));
+	modelATransformMatrix = glm::scale(modelATransformMatrix, vec3(0.005f));
 	GLint transformationMatrixLocation = glGetUniformLocation(programID, "modelTransformMatrix");
 	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelATransformMatrix[0][0]);
 
