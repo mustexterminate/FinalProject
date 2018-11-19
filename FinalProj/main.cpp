@@ -157,6 +157,7 @@ void installShaders()
 		return;
 
 	programID = glCreateProgram();
+	Skybox_programID = glCreateProgram();
 	glAttachShader(programID, vertexShaderID);
 	glAttachShader(programID, fragmentShaderID);
 	glLinkProgram(programID);
@@ -666,6 +667,7 @@ void paintGL(void)
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	
 	glDepthMask(GL_FALSE);
+	glUseProgram(Skybox_programID);
 	glEnable(GL_DEPTH_TEST);
 	glShadeModel(GL_SMOOTH);
 	
@@ -729,6 +731,7 @@ void paintGL(void)
 	glBindVertexArray(skyboxVAO);
 	glActiveTexture(GL_TEXTURE0);
 	glUniform1i(glGetUniformLocation(Skybox_programID, "skybox"), 0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_cubemapTexture);
 
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);

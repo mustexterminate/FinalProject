@@ -18,7 +18,9 @@ void main(){
 	vec4 projectedPosition = projection * newPosition;
     // Output position of the vertex, in clip space : MVP * position
     gl_Position = PVM * vec4(vertexPosition_modelspace, 1);
+
 	TexCoords = vertexPosition_modelspace;
+
 	vec4 normal_temp = modelTransformMatrix * vec4(vertexNormal, 0);
 	normalWorld = normal_temp.xyz;
 	vertexPositionWorld = newPosition.xyz;

@@ -35,7 +35,7 @@ void main()
 	float brightness = dot(lightVectorWorld, normalize(normalWorld));
 	vec4 diffuseLight = vec4(brightness, brightness, brightness, 1.0);
 
-	daColor = vec4(materialAmbientColor * ambientLight, 1.0 * texture(skybox, TexCoords)) 
+	daColor = vec4(materialAmbientColor * ambientLight, 1.0) + texture(skybox, TexCoords) 
 	+ (materialDiffuseColor * clamp(diffuseLight, 0, 1) * vec4(LightColor, 1.0) * lightPowerDiff) 
 	+ (materialSpecularColor * specularLight * vec4(LightColor, 1.0) * lightPowerSpec);
 }
