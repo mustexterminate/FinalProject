@@ -7,6 +7,7 @@ layout(location = 2) in vec3 vertexNormal;
 out vec2 UV;
 out vec3 normalWorld;
 out vec3 vertexPositionWorld;
+out vec3 TexCoords;
 
 uniform mat4 PVM;
 uniform mat4 modelTransformMatrix;
@@ -17,7 +18,7 @@ void main(){
 	vec4 projectedPosition = projection * newPosition;
     // Output position of the vertex, in clip space : MVP * position
     gl_Position = PVM * vec4(vertexPosition_modelspace, 1);
-	
+	TexCoords = vertexPosition_modelspace;
 	vec4 normal_temp = modelTransformMatrix * vec4(vertexNormal, 0);
 	normalWorld = normal_temp.xyz;
 	vertexPositionWorld = newPosition.xyz;

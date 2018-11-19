@@ -15,6 +15,7 @@ Student Name: Alexander Yoo\Ernest Tran
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <tuple>
 using namespace std;
 using glm::vec3;
 using glm::mat4;
@@ -50,15 +51,19 @@ float verticalAngle = 0.0f;
 //
 GLuint textInd = 2;
 GLint programID;
+GLint Skybox_programID;
 GLuint textureID;
 
 //Model Information
+GLuint skyboxVAO;
+GLuint skyboxVBO;
 GLuint VAOs[3];
 GLuint vertexBuffers[3];
 GLuint uvBuffers[3];
 GLuint normalBuffers[3];
 GLuint drawSizes[3];
 GLuint textures[5];
+GLuint skybox_cubemapTexture;
 
 //a series utilities for setting shader parameters 
 void setMat4(const std::string &name, glm::mat4& value)
@@ -385,6 +390,73 @@ GLuint loadBMP_custom(const char * imagepath) {
 	return textureID;
 }
 
+std::tuple<int, int, unsigned char*> loadBMP_data(const char * imagepath) {
+
+	printf("Reading image %s\n", imagepath);
+
+	unsigned char header[54];
+	unsigned int dataPos;
+	unsigned int imageSize;
+	unsigned int width, height;
+	unsigned char * data;
+
+	FILE * file = fopen(imagepath, "rb");
+	if (!file) { printf("%s could not be opened. Are you in the right directory ? Don't forget to read the FAQ !\n", imagepath); getchar(); 
+	return std::make_tuple(0, 0, (unsigned char*) 'a');
+	}
+
+	if (fread(header, 1, 54, file) != 54) {
+		printf("Not a correct BMP file\n");
+		return std::make_tuple(0, 0, (unsigned char*) 'a');
+	}
+	if (header[0] != 'B' || header[1] != 'M') {
+		printf("Not a correct BMP file\n");
+		return std::make_tuple(0, 0, (unsigned char*) 'a');
+	}
+	if (*(int*)&(header[0x1E]) != 0) { printf("Not a correct BMP file\n");    
+		return std::make_tuple(0, 0, (unsigned char*) 'a');
+	}
+	if (*(int*)&(header[0x1C]) != 24) { printf("Not a correct BMP file\n");    
+		return std::make_tuple(0, 0, (unsigned char*) 'a');
+	}
+
+	dataPos = *(int*)&(header[0x0A]);
+	imageSize = *(int*)&(header[0x22]);
+	width = *(int*)&(header[0x12]);
+	height = *(int*)&(header[0x16]);
+	if (imageSize == 0)    imageSize = width * height * 3;
+	if (dataPos == 0)      dataPos = 54;
+
+	data = new unsigned char[imageSize];
+	fread(data, 1, imageSize, file);
+	fclose(file);
+
+	return std::make_tuple(width, height, data);
+}
+
+GLuint loadCubemap(vector<const GLchar*> faces)
+{
+	int width, height;
+	unsigned char* image;
+	GLuint textureID;
+	glGenTextures(1, &textureID);
+	std::tuple<int, int, unsigned char*> result = std::make_tuple(width, height, image);
+	for (GLuint i = 0; i < faces.size(); i++) {
+		result = loadBMP_data(faces[i]);
+		width = std::get<0>(result);
+		height = std::get<1>(result);
+		image = std::get<2>(result);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	return textureID;
+}
+
 void sendDataToOpenGL()
 {
 	glBindVertexArray(01);
@@ -398,13 +470,40 @@ void sendDataToOpenGL()
 	std::vector< glm::vec3 > verticesC;
 	std::vector< glm::vec2 > uvsC;
 	std::vector< glm::vec3 > normalsC;
+	vector<const GLchar*> skybox_faces;
 
+	skybox_faces.push_back("sources/texture/skybox/purplenebula_rt.bmp");
+	skybox_faces.push_back("sources/texture/skybox/purplenebula_lf.bmp");
+	skybox_faces.push_back("sources/texture/skybox/purplenebula_dn.bmp");
+	skybox_faces.push_back("sources/texture/skybox/purplenebula_up.bmp");
+	skybox_faces.push_back("sources/texture/skybox/purplenebula_bk.bmp");
+	skybox_faces.push_back("sources/texture/skybox/purplenebula_ft.bmp");
+	skybox_cubemapTexture = loadCubemap(skybox_faces);
+	
 	textures[0] = loadBMP_custom("sources/texture/Trident_UV.bmp");
 	textures[1] = loadBMP_custom("sources/texture/camo.bmp");
 	textures[2] = loadBMP_custom("sources/texture/theme1.bmp");
 	textures[3] = loadBMP_custom("sources/texture/theme2.bmp");
 	textures[4] = loadBMP_custom("sources/texture/theme3.bmp");
 
+	GLfloat skyboxVertices[] =
+	{
+		-1.0f, 1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, 1.0f, -1.0f,
+		-1.0f, 1.0f, -1.0f,
+	};
+
+	glGenVertexArrays(1, &skyboxVAO);
+	glGenBuffers(1, &skyboxVBO);
+	glBindVertexArray(skyboxVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+	glBindVertexArray(0);
 	//Model 1
 	loadOBJ("sources/spaceCraft.obj", verticesA, uvsA, normalsA);
 	glGenVertexArrays(1, &VAOs[0]);
@@ -565,9 +664,22 @@ void sendDataToOpenGL()
 void paintGL(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	
+	glDepthMask(GL_FALSE);
 	glEnable(GL_DEPTH_TEST);
 	glShadeModel(GL_SMOOTH);
 	
+	// Camera world space location
+	glm::vec3 direction(
+		sin(glm::radians((float)horizontalAngle)) + 0.0f, //XHorizontal + XVertical
+		0.0f + sin(glm::radians((float)verticalAngle)), //YHorizontal + YVertical
+		cos(glm::radians((float)horizontalAngle)) + cos(glm::radians((float)verticalAngle)) //ZHorizontal + ZVertical
+	);
+	glm::mat4 view = glm::lookAt(vec3(0, 9, -9), //Position
+		direction * vec3(162), //Look At
+		vec3(0, 1, 0)); //Height
+	glm::mat4 projection = glm::perspective(glm::radians(80.0f), 4.0f / 3.0f, 0.1f, 100.0f);
+
 	//Eye Position
 	GLint eyePositionUniformLocation = glGetUniformLocation(programID, "eyePositionWorld");
 	vec3 eyePosition(0.0f, eyePositionSpecY, -9.0f);
@@ -579,19 +691,10 @@ void paintGL(void)
 	glUniform3fv(lightPositionUniformLocation, 1, &lightPosition[0]);
 
 	//Projection
-	glm::mat4 projection = glm::perspective(glm::radians(80.0f), 4.0f/3.0f, 0.1f, 100.0f);
 	GLint projectionLocation = glGetUniformLocation(programID, "projection");
 	glUniformMatrix3fv(projectionLocation, 1, GL_FALSE, &projection[0][0]);
 
-	// Camera world space location
-	glm::vec3 direction(
-		sin(glm::radians((float)horizontalAngle)) + 0.0f, //XHorizontal + XVertical
-		0.0f + sin(glm::radians((float)verticalAngle)), //YHorizontal + YVertical
-		cos(glm::radians((float)horizontalAngle)) + cos(glm::radians((float)verticalAngle)) //ZHorizontal + ZVertical
-	);
-	glm::mat4 view = glm::lookAt(vec3(0, 9, -9), //Position
-		direction * vec3(162), //Look At
-		vec3(0, 1, 0)); //Height
+	
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 	glm::mat4 modelATransformMatrix = glm::mat4(1.0f);
 	GLint modelMatrixUniformLocation =
@@ -621,6 +724,15 @@ void paintGL(void)
 	glm::mat4 PVM = projection * view * modelATransformMatrix;
 	GLuint matrixLocation = glGetUniformLocation(programID, "PVM");
 	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
+
+	// skybox cube
+	glBindVertexArray(skyboxVAO);
+	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(glGetUniformLocation(Skybox_programID, "skybox"), 0);
+
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+	glDepthMask(GL_TRUE);
 
 	//Model 1
 	glBindVertexArray(01);
