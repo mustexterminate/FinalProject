@@ -157,7 +157,7 @@ void installShaders()
 		return;
 
 	programID = glCreateProgram();
-	Skybox_programID = glCreateProgram();
+	//Skybox_programID = glCreateProgram();
 	glAttachShader(programID, vertexShaderID);
 	glAttachShader(programID, fragmentShaderID);
 	glLinkProgram(programID);
@@ -167,6 +167,23 @@ void installShaders()
 
 	glDeleteShader(vertexShaderID);
 	glDeleteShader(fragmentShaderID);
+
+	temp = readShaderCode("VertexShaderSkybox.glsl");
+	adapter[0] = temp.c_str();
+	glShaderSource(vertexShaderID, 1, adapter, 0);
+	temp = readShaderCode("FragmentShaderSkybox.glsl");
+	adapter[0] = temp.c_str();
+	glShaderSource(fragmentShaderID, 1, adapter, 0);
+
+	glCompileShader(vertexShaderID);
+	glCompileShader(fragmentShaderID);
+
+	if (!checkShaderStatus(vertexShaderID) || !checkShaderStatus(fragmentShaderID))
+		return;
+	Skybox_programID = glCreateProgram();
+	glAttachShader(Skybox_programID, vertexShaderID);
+	glAttachShader(Skybox_programID, fragmentShaderID);
+	glLinkProgram(Skybox_programID);
 
 	glUseProgram(programID);
 }

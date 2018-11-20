@@ -21,6 +21,12 @@
     <None Include="VertexShaderCode.glsl">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="FragmentShaderSkybox.glsl">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="VertexShaderSkybox.glsl">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
