@@ -19,8 +19,8 @@ void main()
 {
 	vec3 materialAmbientColor = texture( myTextureSampler, UV ).rgb;
 	vec4 materialDiffuseColor = vec4(texture( myTextureSampler, UV ).rgb, 1.0);
-	vec4 materialSpecularColor = vec4(0.8, 0.3, 0.3, 1.0);
-	vec3 LightColor = vec3(0.5,0.3,0.4);
+	vec4 materialSpecularColor = vec4(0.5, 0.5, 0.5, 1.0);
+	vec3 LightColor = vec3(0.5,0.5,0.5);
 
 	// specular
 	vec3 reflectedLightVectorWorld = reflect(-lightPositionWorld, normalWorld);
