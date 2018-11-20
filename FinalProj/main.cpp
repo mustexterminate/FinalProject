@@ -20,12 +20,13 @@ using namespace std;
 using glm::vec3;
 using glm::mat4;
 
-
-glm::mat4 modelBTransformMatrix = glm::translate(glm::mat4(), glm::vec3(6, 3, 0.0f));
-
 float speed = 3.0f;
 float mouseSpeed = 1.0f;
+//Frame Information
+int frame = 0;
 //Interaction Variable
+float ringRotation = 0.0f;
+//
 float y_delta = 0.1f;
 float z_delta = 0.1f;
 float yRotate_delta = 0.1f;
@@ -538,7 +539,7 @@ void sendDataToOpenGL()
 
 	//Other Textures
 	textures[0] = loadBMP_custom("sources/texture/Trident_UV.bmp");
-	textures[1] = loadBMP_custom("sources/texture/camo.bmp");
+	textures[1] = loadBMP_custom("sources/texture/ringTexture.bmp");
 	textures[2] = loadBMP_custom("sources/texture/theme1.bmp");
 	textures[3] = loadBMP_custom("sources/texture/theme2.bmp");
 	textures[4] = loadBMP_custom("sources/texture/theme3.bmp");
@@ -602,7 +603,7 @@ void sendDataToOpenGL()
 	sendModelData("sources/spaceCraft.obj", 0);
 	sendModelData("sources/rock.obj", 1);
 	sendModelData("sources/plane.obj", 2);
-	sendModelData("sources/block.obj", 3);
+	sendModelData("sources/Ring.obj", 3);
 
 
 	textureID = glGetUniformLocation(programID, "myTextureSampler");
@@ -624,7 +625,7 @@ void paintGL(void)
 		0.0f + sin(glm::radians((float)verticalAngle)), //YHorizontal + YVertical
 		cos(glm::radians((float)horizontalAngle)) + cos(glm::radians((float)verticalAngle)) //ZHorizontal + ZVertical
 	);
-	glm::mat4 view = glm::lookAt(vec3(0, 9, -9), //Position
+	glm::mat4 view = glm::lookAt(vec3(0, 6, -9), //Position
 		direction * vec3(162), //Look At
 		vec3(0, 1, 0)); //Height
 	glm::mat4 projection = glm::perspective(glm::radians(80.0f), 4.0f / 3.0f, 0.1f, 100.0f);
@@ -675,6 +676,20 @@ void paintGL(void)
 	glUniform1f(diffLightUniformLocation, lightPowerDiff);
 	glUniform1f(specLightUniformLocation, lightPowerSpec);
 
+	//Keeping this For Reference, to be removed when submitting [allows us to tell where the x & z axis expand to]
+	// Model 3: Plane
+	glBindVertexArray(VAOs[2]);
+	/// Transformation
+	PVM = projection * view * modelMatrix;
+	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelMatrix[0][0]);
+	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
+	/// Texture
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, textures[textInd]);
+	glUniform1i(textureID, 2);
+	/// Draw
+	glDrawArrays(GL_TRIANGLES, 0, drawSizes[2]);
+
 	// Model 1: SpaceCraft
 	glBindVertexArray(VAOs[0]);
 	/// Transformation
@@ -693,39 +708,30 @@ void paintGL(void)
 	/// Draw
 	glDrawArrays(GL_TRIANGLES, 0, drawSizes[0]);
 
-	// Model 2: Rotating Object
-	glBindVertexArray(VAOs[1]);
-	/// Transformation
-	if (spin) {
-		modelBTransformMatrix = glm::rotate(modelBTransformMatrix, glm::radians(yRotate_delta * 3),
-			glm::vec3(0, 1, 0));
-	}
-	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelBTransformMatrix[0][0]);
-	PVM = projection * view * modelBTransformMatrix;
-	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
+	// Model 2: Ring
+	glBindVertexArray(VAOs[3]);
 	/// Texture
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, textures[1]);
 	glUniform1i(textureID, 1);
-	/// Draw
-	glDrawArrays(GL_TRIANGLES, 0, drawSizes[1]);
-
-	// Model 3: Plane
-	glBindVertexArray(VAOs[2]);
 	/// Transformation
-	PVM = projection * view * modelMatrix;
-	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelMatrix[0][0]);
+	mat4 modelBTranslate = glm::translate(mat4(1.0f), glm::vec3(0.0f, 6.0f, 0.0f));
+	mat4 modelBScale = glm::scale(mat4(1.0f), glm::vec3(0.0625));
+	mat4 modelBRotate = glm::rotate(mat4(1.0f), glm::radians(90.0f), vec3(0, 0, 1));
+	modelBRotate = glm::rotate(modelBRotate, glm::radians(frame * y_delta * 3), vec3(1, 0, 0));
+
+	mat4 modelBTransformMatrix = modelBTranslate * modelBScale * modelBRotate; //Rotate --> Scale --> Translate
+
+	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelBTransformMatrix[0][0]);
+	PVM = projection * view * modelBTransformMatrix;
 	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
-	/// Texture
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, textures[textInd]);
-	glUniform1i(textureID, 2);
 	/// Draw
-	glDrawArrays(GL_TRIANGLES, 0, drawSizes[2]);
+	glDrawArrays(GL_TRIANGLES, 0, drawSizes[3]);
 	
 	glFlush();
 	glutPostRedisplay();
 
+	frame++;
 }
 
 void initializedGL(void) //run only once
