@@ -17,7 +17,6 @@ uniform float lightPowerDiff;
 
 void main()
 {
-
 	vec3 materialAmbientColor = texture( myTextureSampler, UV ).rgb;
 	vec4 materialDiffuseColor = vec4(texture( myTextureSampler, UV ).rgb, 1.0);
 	vec4 materialSpecularColor = vec4(0.8, 0.3, 0.3, 1.0);

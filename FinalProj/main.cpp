@@ -168,6 +168,10 @@ void installShaders()
 	glDeleteShader(vertexShaderID);
 	glDeleteShader(fragmentShaderID);
 
+	//Skybox
+	vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
+	fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+
 	temp = readShaderCode("VertexShaderSkybox.glsl");
 	adapter[0] = temp.c_str();
 	glShaderSource(vertexShaderID, 1, adapter, 0);
@@ -178,13 +182,18 @@ void installShaders()
 	glCompileShader(vertexShaderID);
 	glCompileShader(fragmentShaderID);
 
-	if (!checkShaderStatus(vertexShaderID) || !checkShaderStatus(fragmentShaderID))
-		return;
+	if (!checkShaderStatus(vertexShaderID) || !checkShaderStatus(fragmentShaderID)) return;
+
 	Skybox_programID = glCreateProgram();
 	glAttachShader(Skybox_programID, vertexShaderID);
 	glAttachShader(Skybox_programID, fragmentShaderID);
 	glLinkProgram(Skybox_programID);
 
+	if (!checkProgramStatus(Skybox_programID))
+		return;
+
+	glDeleteShader(vertexShaderID);
+	glDeleteShader(fragmentShaderID);
 	glUseProgram(programID);
 }
 
@@ -488,6 +497,7 @@ void sendDataToOpenGL()
 	std::vector< glm::vec3 > verticesC;
 	std::vector< glm::vec2 > uvsC;
 	std::vector< glm::vec3 > normalsC;
+
 	vector<const GLchar*> skybox_faces;
 
 	skybox_faces.push_back("sources/texture/skybox/purplenebula_rt.bmp");
@@ -497,13 +507,14 @@ void sendDataToOpenGL()
 	skybox_faces.push_back("sources/texture/skybox/purplenebula_bk.bmp");
 	skybox_faces.push_back("sources/texture/skybox/purplenebula_ft.bmp");
 	skybox_cubemapTexture = loadCubemap(skybox_faces);
-	
+
 	textures[0] = loadBMP_custom("sources/texture/Trident_UV.bmp");
 	textures[1] = loadBMP_custom("sources/texture/camo.bmp");
 	textures[2] = loadBMP_custom("sources/texture/theme1.bmp");
 	textures[3] = loadBMP_custom("sources/texture/theme2.bmp");
 	textures[4] = loadBMP_custom("sources/texture/theme3.bmp");
 
+	
 	GLfloat skyboxVertices[] =
 	{
 		-1.0f, 1.0f, -1.0f,
@@ -522,6 +533,7 @@ void sendDataToOpenGL()
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 	glBindVertexArray(0);
+
 	//Model 1
 	loadOBJ("sources/spaceCraft.obj", verticesA, uvsA, normalsA);
 	glGenVertexArrays(1, &VAOs[0]);
@@ -682,13 +694,14 @@ void sendDataToOpenGL()
 void paintGL(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	
 	glDepthMask(GL_FALSE);
-	glUseProgram(Skybox_programID);
-	glEnable(GL_DEPTH_TEST);
-	glShadeModel(GL_SMOOTH);
-	
-	// Camera world space location
+
+	// Initialize Default Values
+	/// Lighting
+	vec3 eyePosition(0.0f, eyePositionSpecY, -9.0f);
+	vec3 lightPosition(lightPositionSpecX, lightPositionSpecY, 2.0f);
+	vec3 ambientLight(0.6f, 0.6f, 0.6f);
+	/// Projection & View
 	glm::vec3 direction(
 		sin(glm::radians((float)horizontalAngle)) + 0.0f, //XHorizontal + XVertical
 		0.0f + sin(glm::radians((float)verticalAngle)), //YHorizontal + YVertical
@@ -698,52 +711,9 @@ void paintGL(void)
 		direction * vec3(162), //Look At
 		vec3(0, 1, 0)); //Height
 	glm::mat4 projection = glm::perspective(glm::radians(80.0f), 4.0f / 3.0f, 0.1f, 100.0f);
-
-	//Eye Position
-	GLint eyePositionUniformLocation = glGetUniformLocation(programID, "eyePositionWorld");
-	vec3 eyePosition(0.0f, eyePositionSpecY, -9.0f);
-	glUniform3fv(eyePositionUniformLocation, 1, &eyePosition[0]);
-
-	//Light Position
-	GLint lightPositionUniformLocation = glGetUniformLocation(programID, "lightPositionWorld");
-	vec3 lightPosition(lightPositionSpecX, lightPositionSpecY, 2.0f);
-	glUniform3fv(lightPositionUniformLocation, 1, &lightPosition[0]);
-
-	//Projection
-	GLint projectionLocation = glGetUniformLocation(programID, "projection");
-	glUniformMatrix3fv(projectionLocation, 1, GL_FALSE, &projection[0][0]);
-
-	
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
-	glm::mat4 modelATransformMatrix = glm::mat4(1.0f);
-	GLint modelMatrixUniformLocation =
-		glGetUniformLocation(programID, "modelMatrix");
 
-	// Ambient Light Color
-	GLint ambientLightUniformLocation = glGetUniformLocation(programID, "ambientLight");
-	vec3 ambientLight(0.6f, 0.6f, 0.6f);
-	glUniform3fv(ambientLightUniformLocation, 1, &ambientLight[0]);
-
-	// Light for Diffuse and Specular power
-	GLint diffLightUniformLocation = glGetUniformLocation(programID, "lightPowerDiff");
-	glUniform1f(diffLightUniformLocation, lightPowerDiff);
-	GLint specLightUniformLocation = glGetUniformLocation(programID, "lightPowerSpec");
-	glUniform1f(specLightUniformLocation, lightPowerSpec);
-
-	// Matrix Transformation
-	modelATransformMatrix = glm::translate(glm::mat4(),
-		glm::vec3(0.0f, 5.0f, z_delta * z_press_num));
-	modelATransformMatrix = glm::rotate(modelATransformMatrix, glm::radians(yRotate_delta*y_rotate_press_num),
-		glm::vec3(0, 1, 0));
-	modelATransformMatrix = glm::scale(modelATransformMatrix, vec3(0.005f));
-	GLint transformationMatrixLocation = glGetUniformLocation(programID, "modelTransformMatrix");
-	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelATransformMatrix[0][0]);
-
-	//Matrix
-	glm::mat4 PVM = projection * view * modelATransformMatrix;
-	GLuint matrixLocation = glGetUniformLocation(programID, "PVM");
-	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
-
+	/*glUseProgram(Skybox_programID);
 	// skybox cube
 	glBindVertexArray(skyboxVAO);
 	glActiveTexture(GL_TEXTURE0);
@@ -753,16 +723,50 @@ void paintGL(void)
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 	glDepthMask(GL_TRUE);
+	*/
 
-	//Model 1
-	glBindVertexArray(01);
+	// programID
+	glUseProgram(programID);
+	// Get Locations
+	/// Lighting
+	GLint eyePositionUniformLocation = glGetUniformLocation(programID, "eyePositionWorld");
+	GLint lightPositionUniformLocation = glGetUniformLocation(programID, "lightPositionWorld");
+	GLint ambientLightUniformLocation = glGetUniformLocation(programID, "ambientLight");
+	GLint diffLightUniformLocation = glGetUniformLocation(programID, "lightPowerDiff");
+	GLint specLightUniformLocation = glGetUniformLocation(programID, "lightPowerSpec");
+	/// PVM
+	GLint transformationMatrixLocation = glGetUniformLocation(programID, "modelTransformMatrix");
+	GLuint matrixLocation = glGetUniformLocation(programID, "PVM");
+
+	// Bind Defaults
+	/// Lighting
+	glUniform3fv(eyePositionUniformLocation, 1, &eyePosition[0]);
+	glUniform3fv(lightPositionUniformLocation, 1, &lightPosition[0]);
+	glUniform3fv(ambientLightUniformLocation, 1, &ambientLight[0]);
+	glUniform1f(diffLightUniformLocation, lightPowerDiff);
+	glUniform1f(specLightUniformLocation, lightPowerSpec);
+
+	// Model 1: SpaceCraft
+	glBindVertexArray(VAOs[0]);
+	/// Transformation
+	mat4 modelATransformMatrix = glm::translate(glm::mat4(1.0f),
+		glm::vec3(0.0f, 5.0f, z_delta * z_press_num));
+	modelATransformMatrix = glm::rotate(modelATransformMatrix, glm::radians(yRotate_delta*y_rotate_press_num),
+		glm::vec3(0, 1, 0));
+	modelATransformMatrix = glm::scale(modelATransformMatrix, vec3(0.005f));
+	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelATransformMatrix[0][0]);
+	mat4 PVM = projection * view * modelATransformMatrix;
+	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
+	/// Texture
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	glUniform1i(textureID, 0);
+	/// Draw
 	glDrawArrays(GL_TRIANGLES, 0, drawSizes[0]);
 
-	//Model 2
-	glBindVertexArray(02);
+	// Model 2: Rotating Object
+	glBindVertexArray(VAOs[1]);
+	/// Transformation
 	if (spin) {
 		modelBTransformMatrix = glm::rotate(modelBTransformMatrix, glm::radians(yRotate_delta * 3),
 			glm::vec3(0, 1, 0));
@@ -770,22 +774,29 @@ void paintGL(void)
 	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelBTransformMatrix[0][0]);
 	PVM = projection * view * modelBTransformMatrix;
 	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
+	/// Texture
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, textures[1]);
 	glUniform1i(textureID, 1);
+	/// Draw
 	glDrawArrays(GL_TRIANGLES, 0, drawSizes[1]);
 
-	//Model 3
-	glBindVertexArray(03);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, textures[textInd]);
-	glUniform1i(textureID, 2);
+	// Model 3: Plane
+	glBindVertexArray(VAOs[2]);
+	/// Transformation
 	PVM = projection * view * modelMatrix;
 	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelMatrix[0][0]);
 	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
+	/// Texture
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, textures[textInd]);
+	glUniform1i(textureID, 2);
+	
 	glDrawArrays(GL_TRIANGLES, 0, drawSizes[2]);
+
 	glFlush();
 	glutPostRedisplay();
+
 }
 
 void initializedGL(void) //run only once

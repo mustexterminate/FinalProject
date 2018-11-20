@@ -12,6 +12,7 @@ out vec3 TexCoords;
 uniform mat4 PVM;
 uniform mat4 modelTransformMatrix;
 uniform mat4 projection;
+
 void main(){
 	vec4 v = vec4(vertexPosition_modelspace, 1.0);
 	vec4 newPosition = modelTransformMatrix * v;

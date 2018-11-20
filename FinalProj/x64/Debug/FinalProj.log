@@ -1,15 +1,15 @@
 ﻿  main.cpp
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(199): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(202): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(205): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(208): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(211): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(214): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(217): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(220): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(223): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(226): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(524): warning C4267: '=': conversion from 'size_t' to 'GLuint', possible loss of data
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(576): warning C4267: '=': conversion from 'size_t' to 'GLuint', possible loss of data
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(627): warning C4267: '=': conversion from 'size_t' to 'GLuint', possible loss of data
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(218): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(221): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(224): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(227): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(230): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(233): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(236): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(239): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(242): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(245): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(546): warning C4267: '=': conversion from 'size_t' to 'GLuint', possible loss of data
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(598): warning C4267: '=': conversion from 'size_t' to 'GLuint', possible loss of data
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(649): warning C4267: '=': conversion from 'size_t' to 'GLuint', possible loss of data
   FinalProj.vcxproj -> C:\Users\u3158\source\repos\FinalProject\x64\Debug\FinalProj.exe
