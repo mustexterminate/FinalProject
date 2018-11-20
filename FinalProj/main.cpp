@@ -498,6 +498,7 @@ void sendDataToOpenGL()
 	std::vector< glm::vec2 > uvsC;
 	std::vector< glm::vec3 > normalsC;
 
+	//Sky Box Textures
 	vector<const GLchar*> skybox_faces;
 
 	skybox_faces.push_back("sources/texture/skybox/purplenebula_rt.bmp");
@@ -508,13 +509,15 @@ void sendDataToOpenGL()
 	skybox_faces.push_back("sources/texture/skybox/purplenebula_ft.bmp");
 	skybox_cubemapTexture = loadCubemap(skybox_faces);
 
+	//Other Textures
 	textures[0] = loadBMP_custom("sources/texture/Trident_UV.bmp");
 	textures[1] = loadBMP_custom("sources/texture/camo.bmp");
 	textures[2] = loadBMP_custom("sources/texture/theme1.bmp");
 	textures[3] = loadBMP_custom("sources/texture/theme2.bmp");
 	textures[4] = loadBMP_custom("sources/texture/theme3.bmp");
 
-	
+	//Skybox Cube
+	/*
 	GLfloat skyboxVertices[] =
 	{
 		-1.0f, 1.0f, -1.0f,
@@ -524,7 +527,9 @@ void sendDataToOpenGL()
 		1.0f, 1.0f, -1.0f,
 		-1.0f, 1.0f, -1.0f,
 	};
-
+	*/
+	std::vector<glm::vec3> skyboxVertices;
+	loadOBJ("sources/block.obj", skyboxVertices, uvsA, normalsA);
 	glGenVertexArrays(1, &skyboxVAO);
 	glGenBuffers(1, &skyboxVBO);
 	glBindVertexArray(skyboxVAO);
@@ -713,17 +718,27 @@ void paintGL(void)
 	glm::mat4 projection = glm::perspective(glm::radians(80.0f), 4.0f / 3.0f, 0.1f, 100.0f);
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
-	/*glUseProgram(Skybox_programID);
-	// skybox cube
+	//Skybox
+	glUseProgram(Skybox_programID);
+	glDepthMask(GL_TRUE);
+	///PVM
+	GLint skyboxProjection = glGetUniformLocation(Skybox_programID, "projectionMatrix");
+	GLint skyboxView = glGetUniformLocation(Skybox_programID, "viewMatrix");
+	GLint skyboxTransformation = glGetUniformLocation(Skybox_programID, "modelTransformMatrix");
+	////
+	glUniformMatrix4fv(skyboxProjection, 1, GL_FALSE, &projection[0][0]);
+	glUniformMatrix4fv(skyboxView, 1, GL_FALSE, &view[0][0]);
+	////
+	glUniformMatrix4fv(skyboxTransformation, 1, GL_FALSE, &modelMatrix[0][0]);
+	///Texture
 	glBindVertexArray(skyboxVAO);
 	glActiveTexture(GL_TEXTURE0);
-	glUniform1i(glGetUniformLocation(Skybox_programID, "skybox"), 0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_cubemapTexture);
-
+	glUniform1i(glGetUniformLocation(Skybox_programID, "texture"), 0);
+	glBindTexture(GL_TEXTURE_2D, textures[0]);
+	///Draw
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 	glDepthMask(GL_TRUE);
-	*/
 
 	// programID
 	glUseProgram(programID);
@@ -791,7 +806,7 @@ void paintGL(void)
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, textures[textInd]);
 	glUniform1i(textureID, 2);
-	
+	/// Draw
 	glDrawArrays(GL_TRIANGLES, 0, drawSizes[2]);
 
 	glFlush();
