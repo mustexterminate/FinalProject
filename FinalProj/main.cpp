@@ -51,7 +51,7 @@ float verticalAngle = 0.0f;
 //
 GLuint textInd = 2;
 GLint programID;
-GLint Skybox_programID;
+GLint skyboxID;
 GLuint textureID;
 
 //Model Information
@@ -139,6 +139,7 @@ string readShaderCode(const char* fileName)
 
 void installShaders()
 {
+	//ProgramID
 	GLuint vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
 	GLuint fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
 
@@ -157,9 +158,9 @@ void installShaders()
 		return;
 
 	programID = glCreateProgram();
-	//Skybox_programID = glCreateProgram();
 	glAttachShader(programID, vertexShaderID);
 	glAttachShader(programID, fragmentShaderID);
+	///
 	glLinkProgram(programID);
 
 	if (!checkProgramStatus(programID))
@@ -167,8 +168,8 @@ void installShaders()
 
 	glDeleteShader(vertexShaderID);
 	glDeleteShader(fragmentShaderID);
-
-	//Skybox
+	
+	//SkyboxID
 	vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
 	fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
 
@@ -182,18 +183,21 @@ void installShaders()
 	glCompileShader(vertexShaderID);
 	glCompileShader(fragmentShaderID);
 
-	if (!checkShaderStatus(vertexShaderID) || !checkShaderStatus(fragmentShaderID)) return;
+	if (!checkShaderStatus(vertexShaderID) || !checkShaderStatus(fragmentShaderID))
+		return;
 
-	Skybox_programID = glCreateProgram();
-	glAttachShader(Skybox_programID, vertexShaderID);
-	glAttachShader(Skybox_programID, fragmentShaderID);
-	glLinkProgram(Skybox_programID);
+	skyboxID = glCreateProgram();
+	glAttachShader(skyboxID, vertexShaderID);
+	glAttachShader(skyboxID, fragmentShaderID);
+	///
+	glLinkProgram(skyboxID);
 
-	if (!checkProgramStatus(Skybox_programID))
+	if (!checkProgramStatus(skyboxID))
 		return;
 
 	glDeleteShader(vertexShaderID);
 	glDeleteShader(fragmentShaderID);
+
 	glUseProgram(programID);
 }
 
@@ -543,47 +547,61 @@ void sendDataToOpenGL()
 	textures[4] = loadBMP_custom("sources/texture/theme3.bmp");
 
 	//Skybox Cube
-	/*
-	GLfloat skyboxVertices[] =
-	{
-		-1.0f, 1.0f, -1.0f,
+	GLfloat skyboxVertices[] = {
+		// positions          
+		-1.0f,  1.0f, -1.0f,
 		-1.0f, -1.0f, -1.0f,
 		1.0f, -1.0f, -1.0f,
 		1.0f, -1.0f, -1.0f,
-		1.0f, 1.0f, -1.0f,
-		-1.0f, 1.0f, -1.0f,
+		1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		-1.0f,  1.0f, -1.0f,
+		1.0f,  1.0f, -1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		1.0f, -1.0f,  1.0f
 	};
-	
-	std::vector<glm::vec3> skybox_vertices;
-	std::vector<glm::vec2> skybox_uvs;
-	std::vector<glm::vec3> skybox_normals;
-	loadOBJ("sources/block.obj", skybox_vertices, skybox_uvs, skybox_normals);
+
 	glGenVertexArrays(1, &skyboxVAO);
-	glBindVertexArray(skyboxVAO);
-	//VBO
-	///Vertex
 	glGenBuffers(1, &skyboxVBO);
+	glBindVertexArray(skyboxVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-	glBufferData(GL_ARRAY_BUFFER, skybox_vertices.size() * sizeof(glm::vec3), &skybox_vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	/*
-	///UVs
-	glGenBuffers(1, &Buffers[modelIndex * 3 + 1]);
-	glBindBuffer(GL_ARRAY_BUFFER, Buffers[modelIndex * 3 + 1]);
-	glBufferData(GL_ARRAY_BUFFER, skybox_uvs.size() * sizeof(glm::vec2), &skybox_uvs[0], GL_STATIC_DRAW);
-	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, Buffers[modelIndex * 3 + 1]);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	///Normals
-	glGenBuffers(1, &Buffers[modelIndex * 3 + 2]);
-	glBindBuffer(GL_ARRAY_BUFFER, Buffers[modelIndex * 3 + 2]);
-	glBufferData(GL_ARRAY_BUFFER, skybox_uvs.size() * sizeof(glm::vec3), &skybox_uvs[0], GL_STATIC_DRAW);
-	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ARRAY_BUFFER, Buffers[modelIndex * 3 + 2]);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	*/
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *)0);
+	glBindVertexArray(0);
+
+	//Models
 	sendModelData("sources/spaceCraft.obj", 0);
 	sendModelData("sources/rock.obj", 1);
 	sendModelData("sources/plane.obj", 2);
@@ -673,6 +691,7 @@ void paintGL(void)
 	/// Draw
 	glDrawArrays(GL_TRIANGLES, 0, drawSizes[1]);
 
+	/*
 	// Model 3: Plane
 	glBindVertexArray(VAOs[2]);
 	/// Transformation
@@ -685,7 +704,44 @@ void paintGL(void)
 	glUniform1i(textureID, 2);
 	/// Draw
 	glDrawArrays(GL_TRIANGLES, 0, drawSizes[2]);
+	*/
 
+	
+	glUseProgram(skyboxID);
+
+	eyePositionUniformLocation = glGetUniformLocation(skyboxID, "eyePositionWorld");
+	lightPositionUniformLocation = glGetUniformLocation(skyboxID, "lightPositionWorld");
+	ambientLightUniformLocation = glGetUniformLocation(skyboxID, "ambientLight");
+	diffLightUniformLocation = glGetUniformLocation(skyboxID, "lightPowerDiff");
+	specLightUniformLocation = glGetUniformLocation(skyboxID, "lightPowerSpec");
+	/// PVM
+	transformationMatrixLocation = glGetUniformLocation(skyboxID, "modelTransformMatrix");
+	matrixLocation = glGetUniformLocation(skyboxID, "PVM");
+
+	mat4 skyboxModel = glm::scale(glm::mat4(1.0f), vec3(1.0f));
+	PVM = view * projection * skyboxModel;
+
+	glUniform3fv(eyePositionUniformLocation, 1, &eyePosition[0]);
+	glUniform3fv(lightPositionUniformLocation, 1, &lightPosition[0]);
+	glUniform3fv(ambientLightUniformLocation, 1, &ambientLight[0]);
+	glUniform1f(diffLightUniformLocation, lightPowerDiff);
+	glUniform1f(specLightUniformLocation, lightPowerSpec);
+
+	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &skyboxModel[0][0]);
+	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
+	// skybox cube
+	glDepthMask(GL_TRUE);
+	glDepthFunc(GL_LEQUAL);
+	glBindVertexArray(skyboxVAO);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, textures[textInd]);
+	glUniform1i(textureID, 2);
+
+	//glUniform1i(glGetUniformLocation(programID, "cubemap"), 0);
+	//glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_cubemapTexture);
+
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	
 	glFlush();
 	glutPostRedisplay();
 
