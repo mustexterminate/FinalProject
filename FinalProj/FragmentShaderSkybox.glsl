@@ -1,4 +1,4 @@
-#version 330
+#version 450
 
 //Texture Coordinates
 in vec3 TexCoords;

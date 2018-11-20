@@ -758,6 +758,7 @@ void paintGL(void)
 	GLint specLightUniformLocation = glGetUniformLocation(programID, "lightPowerSpec");
 	/// PVM
 	GLint transformationMatrixLocation = glGetUniformLocation(programID, "modelTransformMatrix");
+	GLint transformationSkyboxMatrixLocation = glGetUniformLocation(Skybox_programID, "modelTransformMatrix");
 	GLuint matrixLocation = glGetUniformLocation(programID, "PVM");
 
 	// Bind Defaults
@@ -818,15 +819,16 @@ void paintGL(void)
 
 	// skybox cube
 	glDepthMask(GL_TRUE);
-	glDepthFunc(GL_LEQUAL);
+	glDisable(GL_DEPTH_TEST);
 	glBindVertexArray(skyboxVAO);
 	glActiveTexture(GL_TEXTURE0);
 	glUniform1i(glGetUniformLocation(Skybox_programID, "texture"), 0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_cubemapTexture);
-
+	mat4 modelSkyboxTransformMatrix = glm::scale(glm::mat4(1.0f), vec3(1.5f));
+	glUniformMatrix4fv(transformationSkyboxMatrixLocation, 1, GL_FALSE, &modelSkyboxTransformMatrix[0][0]);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	
-	glDepthFunc(GL_LESS);
+	glDepthMask(GL_FALSE);
 	glFlush();
 	glutPostRedisplay();
 
