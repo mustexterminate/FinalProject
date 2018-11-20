@@ -57,11 +57,11 @@ GLuint textureID;
 //Model Information
 GLuint skyboxVAO;
 GLuint skyboxVBO;
-GLuint VAOs[3];
-GLuint vertexBuffers[3];
-GLuint uvBuffers[3];
-GLuint normalBuffers[3];
-GLuint drawSizes[3];
+GLuint VAOs[4];
+GLuint vertexBuffers[4];
+GLuint uvBuffers[4];
+GLuint normalBuffers[4];
+GLuint drawSizes[4];
 GLuint textures[5];
 GLuint skybox_cubemapTexture;
 
@@ -484,20 +484,46 @@ GLuint loadCubemap(vector<const GLchar*> faces)
 	return textureID;
 }
 
+void sendModelData(const char* modelpath, int modelIndex)
+{
+	//Read .obj file
+	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec2> uvs;
+	std::vector<glm::vec3> normals;
+	bool res = loadOBJ(modelpath, vertices, uvs, normals);
+
+	//VAO
+	glGenVertexArrays(1, &VAOs[modelIndex]);
+	glBindVertexArray(VAOs[modelIndex]);
+	//VBO
+	///Vertex
+	glGenBuffers(1, &vertexBuffers[modelIndex]);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[modelIndex]);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[modelIndex]);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	///UVs
+	glGenBuffers(1, &uvBuffers[modelIndex]);
+	glBindBuffer(GL_ARRAY_BUFFER, uvBuffers[modelIndex]);
+	glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
+	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, uvBuffers[modelIndex]);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	///Normals
+	glGenBuffers(1, &normalBuffers[modelIndex]);
+	glBindBuffer(GL_ARRAY_BUFFER, normalBuffers[modelIndex]);
+	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ARRAY_BUFFER, normalBuffers[modelIndex]);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+	//Size of Vertices
+	drawSizes[modelIndex] = (int)vertices.size();
+}
+
 void sendDataToOpenGL()
 {
-	glBindVertexArray(01);
-
-	std::vector< glm::vec3 > verticesA;
-	std::vector< glm::vec2 > uvsA;
-	std::vector< glm::vec3 > normalsA;
-	std::vector< glm::vec3 > verticesB;
-	std::vector< glm::vec2 > uvsB;
-	std::vector< glm::vec3 > normalsB;
-	std::vector< glm::vec3 > verticesC;
-	std::vector< glm::vec2 > uvsC;
-	std::vector< glm::vec3 > normalsC;
-
 	//Sky Box Textures
 	vector<const GLchar*> skybox_faces;
 
@@ -527,171 +553,42 @@ void sendDataToOpenGL()
 		1.0f, 1.0f, -1.0f,
 		-1.0f, 1.0f, -1.0f,
 	};
-	*/
-	std::vector<glm::vec3> skyboxVertices;
-	loadOBJ("sources/block.obj", skyboxVertices, uvsA, normalsA);
+	
+	std::vector<glm::vec3> skybox_vertices;
+	std::vector<glm::vec2> skybox_uvs;
+	std::vector<glm::vec3> skybox_normals;
+	loadOBJ("sources/block.obj", skybox_vertices, skybox_uvs, skybox_normals);
 	glGenVertexArrays(1, &skyboxVAO);
-	glGenBuffers(1, &skyboxVBO);
 	glBindVertexArray(skyboxVAO);
+	//VBO
+	///Vertex
+	glGenBuffers(1, &skyboxVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, skybox_vertices.size() * sizeof(glm::vec3), &skybox_vertices[0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-	glBindVertexArray(0);
-
-	//Model 1
-	loadOBJ("sources/spaceCraft.obj", verticesA, uvsA, normalsA);
-	glGenVertexArrays(1, &VAOs[0]);
-	glBindVertexArray(VAOs[0]);
-
-	glGenBuffers(1, &vertexBuffers[0]);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[0]);
-	glBufferData(GL_ARRAY_BUFFER, verticesA.size() * sizeof(glm::vec3), &verticesA[0], GL_STATIC_DRAW);
-
-	drawSizes[0] = verticesA.size();
-
-	glGenBuffers(1, &uvBuffers[0]);
-	glBindBuffer(GL_ARRAY_BUFFER, uvBuffers[0]);
-	glBufferData(GL_ARRAY_BUFFER, uvsA.size() * sizeof(glm::vec2), &uvsA[0], GL_STATIC_DRAW);
-
-	glGenBuffers(1, &normalBuffers[0]);
-	glBindBuffer(GL_ARRAY_BUFFER, normalBuffers[0]);
-	glBufferData(GL_ARRAY_BUFFER, normalsA.size() * sizeof(glm::vec3), &normalsA[0], GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[0]);
-	glVertexAttribPointer(
-		0,                  // attribute
-		3,                  // size
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized
-		0,                  // stride
-		(void*)0            // array buffer offset
-	);
-	// 2nd attribute buffer : UVs
+	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	/*
+	///UVs
+	glGenBuffers(1, &Buffers[modelIndex * 3 + 1]);
+	glBindBuffer(GL_ARRAY_BUFFER, Buffers[modelIndex * 3 + 1]);
+	glBufferData(GL_ARRAY_BUFFER, skybox_uvs.size() * sizeof(glm::vec2), &skybox_uvs[0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, uvBuffers[0]);
-	glVertexAttribPointer(
-		1,                                // attribute
-		2,                                // size : U+V => 2
-		GL_FLOAT,                         // type
-		GL_FALSE,                         // normalized
-		0,                                // stride
-		(void*)0                          // array buffer offset
-	);
-
+	glBindBuffer(GL_ARRAY_BUFFER, Buffers[modelIndex * 3 + 1]);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	///Normals
+	glGenBuffers(1, &Buffers[modelIndex * 3 + 2]);
+	glBindBuffer(GL_ARRAY_BUFFER, Buffers[modelIndex * 3 + 2]);
+	glBufferData(GL_ARRAY_BUFFER, skybox_uvs.size() * sizeof(glm::vec3), &skybox_uvs[0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ARRAY_BUFFER, normalBuffers[0]);
-	glVertexAttribPointer(
-		2,
-		3,
-		GL_FLOAT,
-		GL_FALSE,
-		0,
-		(void*)0
-	);
+	glBindBuffer(GL_ARRAY_BUFFER, Buffers[modelIndex * 3 + 2]);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	*/
+	sendModelData("sources/spaceCraft.obj", 0);
+	sendModelData("sources/rock.obj", 1);
+	sendModelData("sources/plane.obj", 2);
+	sendModelData("sources/block.obj", 3);
 
-	//Model 2
-	loadOBJ("sources/rock.obj", verticesB, uvsB, normalsB);
-	glGenVertexArrays(1, &VAOs[1]);
-	glBindVertexArray(VAOs[1]);
-
-	glGenBuffers(1, &vertexBuffers[1]);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[1]);
-	glBufferData(GL_ARRAY_BUFFER, verticesB.size() * sizeof(glm::vec3), &verticesB[0], GL_STATIC_DRAW);
-
-	drawSizes[1] = verticesB.size();
-
-	glGenBuffers(1, &uvBuffers[1]);
-	glBindBuffer(GL_ARRAY_BUFFER, uvBuffers[1]);
-	glBufferData(GL_ARRAY_BUFFER, uvsB.size() * sizeof(glm::vec2), &uvsB[0], GL_STATIC_DRAW);
-
-	glGenBuffers(1, &normalBuffers[1]);
-	glBindBuffer(GL_ARRAY_BUFFER, normalBuffers[1]);
-	glBufferData(GL_ARRAY_BUFFER, normalsB.size() * sizeof(glm::vec3), &normalsB[0], GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[1]);
-	glVertexAttribPointer(
-		0,                  // attribute. 
-		3,                  // size
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized
-		0,                  // stride
-		(void*)0            // array buffer offset
-	);
-	// 2nd attribute buffer : UVs
-	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, uvBuffers[1]);
-	glVertexAttribPointer(
-		1,                                // attribute
-		2,                                // size : U+V => 2
-		GL_FLOAT,                         // type
-		GL_FALSE,                         // normalized
-		0,                                // stride
-		(void*)0                          // array buffer offset
-	);
-	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ARRAY_BUFFER, normalBuffers[1]);
-	glVertexAttribPointer(
-		2,
-		3,
-		GL_FLOAT,
-		GL_FALSE,
-		0,
-		(void*)0
-	);
-
-	//Model 3
-	loadOBJ("sources/Plane.obj", verticesC, uvsC, normalsC);
-	glGenVertexArrays(1, &VAOs[2]);
-	glBindVertexArray(VAOs[2]);
-
-	glGenBuffers(1, &vertexBuffers[2]);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[2]);
-	glBufferData(GL_ARRAY_BUFFER, verticesC.size() * sizeof(glm::vec3), &verticesC[0], GL_STATIC_DRAW);
-
-	drawSizes[2] = verticesC.size();
-
-	glGenBuffers(1, &uvBuffers[2]);
-	glBindBuffer(GL_ARRAY_BUFFER, uvBuffers[2]);
-	glBufferData(GL_ARRAY_BUFFER, uvsC.size() * sizeof(glm::vec2), &uvsC[0], GL_STATIC_DRAW);
-
-	glGenBuffers(1, &normalBuffers[2]);
-	glBindBuffer(GL_ARRAY_BUFFER, normalBuffers[2]);
-	glBufferData(GL_ARRAY_BUFFER, normalsC.size() * sizeof(glm::vec3), &normalsC[0], GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[2]);
-	glVertexAttribPointer(
-		0,                  // attribute.
-		3,                  // size
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized
-		0,                  // stride
-		(void*)0            // array buffer offset
-	);
-	// 2nd attribute buffer : UVs
-	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, uvBuffers[2]);
-	glVertexAttribPointer(
-		1,                                // attribute
-		2,                                // size : U+V => 2
-		GL_FLOAT,                         // type
-		GL_FALSE,                         // normalized
-		0,                                // stride
-		(void*)0                          // array buffer offset
-	);
-	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ARRAY_BUFFER, normalBuffers[2]);
-	glVertexAttribPointer(
-		2,
-		3,
-		GL_FLOAT,
-		GL_FALSE,
-		0,
-		(void*)0
-	);
 
 	textureID = glGetUniformLocation(programID, "myTextureSampler");
 }
@@ -718,26 +615,6 @@ void paintGL(void)
 	glm::mat4 projection = glm::perspective(glm::radians(80.0f), 4.0f / 3.0f, 0.1f, 100.0f);
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
-	//Skybox
-	glUseProgram(Skybox_programID);
-	glDepthMask(GL_TRUE);
-	///PVM
-	GLint skyboxProjection = glGetUniformLocation(Skybox_programID, "projectionMatrix");
-	GLint skyboxView = glGetUniformLocation(Skybox_programID, "viewMatrix");
-	GLint skyboxTransformation = glGetUniformLocation(Skybox_programID, "modelTransformMatrix");
-	////
-	glUniformMatrix4fv(skyboxProjection, 1, GL_FALSE, &projection[0][0]);
-	glUniformMatrix4fv(skyboxView, 1, GL_FALSE, &view[0][0]);
-	////
-	glUniformMatrix4fv(skyboxTransformation, 1, GL_FALSE, &modelMatrix[0][0]);
-	///Texture
-	glBindVertexArray(skyboxVAO);
-	glActiveTexture(GL_TEXTURE0);
-	glUniform1i(glGetUniformLocation(Skybox_programID, "texture"), 0);
-	glBindTexture(GL_TEXTURE_2D, textures[0]);
-	///Draw
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glBindVertexArray(0);
 	glDepthMask(GL_TRUE);
 
 	// programID

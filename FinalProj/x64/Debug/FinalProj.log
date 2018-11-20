@@ -9,7 +9,4 @@ c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(236): warning C4305:
 c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(239): warning C4305: '-=': truncation from 'double' to 'float'
 c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(242): warning C4305: '+=': truncation from 'double' to 'float'
 c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(245): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(551): warning C4267: '=': conversion from 'size_t' to 'GLuint', possible loss of data
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(603): warning C4267: '=': conversion from 'size_t' to 'GLuint', possible loss of data
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(654): warning C4267: '=': conversion from 'size_t' to 'GLuint', possible loss of data
   FinalProj.vcxproj -> C:\Users\u3158\source\repos\FinalProject\x64\Debug\FinalProj.exe

@@ -4,10 +4,10 @@
 in vec3 TexCoords;
 //Output
 out vec4 color;
-uniform samplerCube texture;
+uniform samplerCube cubemap;
 
 void main()
 {
-	color = texture(texture, TexCoords);
-	color = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+	color = texture(cubemap, TexCoords);
+	color = vec4(0.0f, 0.0f, 1.0f, 1.0f);
 }
