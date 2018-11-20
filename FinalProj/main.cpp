@@ -21,10 +21,7 @@ using glm::vec3;
 using glm::mat4;
 
 
-glm::mat4 modelBTransformMatrix = glm::translate(glm::mat4(),
-	glm::vec3(6, 3, 0.0f));
-
-
+glm::mat4 modelBTransformMatrix = glm::translate(glm::mat4(), glm::vec3(6, 3, 0.0f));
 
 float speed = 3.0f;
 float mouseSpeed = 1.0f;
@@ -549,47 +546,47 @@ void sendDataToOpenGL()
 	//Skybox Cube
 	GLfloat skyboxVertices[] = {
 		// positions          
-		-1.0f,  1.0f, -1.0f,
-		-1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-		1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
+		-50.0f,  50.0f, -50.0f,
+		-50.0f, -50.0f, -50.0f,
+		50.0f, -50.0f, -50.0f,
+		50.0f, -50.0f, -50.0f,
+		50.0f,  50.0f, -50.0f,
+		-50.0f,  50.0f, -50.0f,
 
-		-1.0f, -1.0f,  1.0f,
-		-1.0f, -1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f,  1.0f,
-		-1.0f, -1.0f,  1.0f,
+		-50.0f, -50.0f,  50.0f,
+		-50.0f, -50.0f, -50.0f,
+		-50.0f,  50.0f, -50.0f,
+		-50.0f,  50.0f, -50.0f,
+		-50.0f,  50.0f,  50.0f,
+		-50.0f, -50.0f,  50.0f,
 
-		1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f,  1.0f,
-		1.0f,  1.0f,  1.0f,
-		1.0f,  1.0f,  1.0f,
-		1.0f,  1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
+		50.0f, -50.0f, -50.0f,
+		50.0f, -50.0f,  50.0f,
+		50.0f,  50.0f,  50.0f,
+		50.0f,  50.0f,  50.0f,
+		50.0f,  50.0f, -50.0f,
+		50.0f, -50.0f, -50.0f,
 
-		-1.0f, -1.0f,  1.0f,
-		-1.0f,  1.0f,  1.0f,
-		1.0f,  1.0f,  1.0f,
-		1.0f,  1.0f,  1.0f,
-		1.0f, -1.0f,  1.0f,
-		-1.0f, -1.0f,  1.0f,
+		-50.0f, -50.0f,  50.0f,
+		-50.0f,  50.0f,  50.0f,
+		50.0f,  50.0f,  50.0f,
+		50.0f,  50.0f,  50.0f,
+		50.0f, -50.0f,  50.0f,
+		-50.0f, -50.0f,  50.0f,
 
-		-1.0f,  1.0f, -1.0f,
-		1.0f,  1.0f, -1.0f,
-		1.0f,  1.0f,  1.0f,
-		1.0f,  1.0f,  1.0f,
-		-1.0f,  1.0f,  1.0f,
-		-1.0f,  1.0f, -1.0f,
+		-50.0f,  50.0f, -50.0f,
+		50.0f,  50.0f, -50.0f,
+		50.0f,  50.0f,  50.0f,
+		50.0f,  50.0f,  50.0f,
+		-50.0f,  50.0f,  50.0f,
+		-50.0f,  50.0f, -50.0f,
 
-		-1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f,  1.0f,
-		1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f,  1.0f,
-		1.0f, -1.0f,  1.0f
+		-50.0f, -50.0f, -50.0f,
+		-50.0f, -50.0f,  50.0f,
+		50.0f, -50.0f, -50.0f,
+		50.0f, -50.0f, -50.0f,
+		-50.0f, -50.0f,  50.0f,
+		50.0f, -50.0f,  50.0f
 	};
 
 	glGenVertexArrays(1, &skyboxVAO);
@@ -633,6 +630,28 @@ void paintGL(void)
 	glm::mat4 projection = glm::perspective(glm::radians(80.0f), 4.0f / 3.0f, 0.1f, 100.0f);
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
+	glUseProgram(skyboxID);
+
+	//Skybox PVM
+	GLuint matrixLocation = glGetUniformLocation(skyboxID, "PVM");
+
+	//
+	mat4 PVM = projection * view * modelMatrix;
+	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
+	// skybox cube
+	glDepthMask(GL_FALSE);
+	glDepthFunc(GL_LEQUAL);
+	glBindVertexArray(skyboxVAO);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
+	glUniform1i(textureID, 2);
+
+	glUniform1i(glGetUniformLocation(skyboxID, "cubemap"), 0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_cubemapTexture);
+
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
 	glDepthMask(GL_TRUE);
 
 	// programID
@@ -646,7 +665,7 @@ void paintGL(void)
 	GLint specLightUniformLocation = glGetUniformLocation(programID, "lightPowerSpec");
 	/// PVM
 	GLint transformationMatrixLocation = glGetUniformLocation(programID, "modelTransformMatrix");
-	GLuint matrixLocation = glGetUniformLocation(programID, "PVM");
+	matrixLocation = glGetUniformLocation(programID, "PVM");
 
 	// Bind Defaults
 	/// Lighting
@@ -665,7 +684,7 @@ void paintGL(void)
 		glm::vec3(0, 1, 0));
 	modelATransformMatrix = glm::scale(modelATransformMatrix, vec3(0.005f));
 	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelATransformMatrix[0][0]);
-	mat4 PVM = projection * view * modelATransformMatrix;
+	PVM = projection * view * modelATransformMatrix;
 	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
 	/// Texture
 	glActiveTexture(GL_TEXTURE0);
@@ -691,7 +710,6 @@ void paintGL(void)
 	/// Draw
 	glDrawArrays(GL_TRIANGLES, 0, drawSizes[1]);
 
-	/*
 	// Model 3: Plane
 	glBindVertexArray(VAOs[2]);
 	/// Transformation
@@ -704,43 +722,6 @@ void paintGL(void)
 	glUniform1i(textureID, 2);
 	/// Draw
 	glDrawArrays(GL_TRIANGLES, 0, drawSizes[2]);
-	*/
-
-	
-	glUseProgram(skyboxID);
-
-	eyePositionUniformLocation = glGetUniformLocation(skyboxID, "eyePositionWorld");
-	lightPositionUniformLocation = glGetUniformLocation(skyboxID, "lightPositionWorld");
-	ambientLightUniformLocation = glGetUniformLocation(skyboxID, "ambientLight");
-	diffLightUniformLocation = glGetUniformLocation(skyboxID, "lightPowerDiff");
-	specLightUniformLocation = glGetUniformLocation(skyboxID, "lightPowerSpec");
-	/// PVM
-	transformationMatrixLocation = glGetUniformLocation(skyboxID, "modelTransformMatrix");
-	matrixLocation = glGetUniformLocation(skyboxID, "PVM");
-
-	mat4 skyboxModel = glm::scale(glm::mat4(1.0f), vec3(1.0f));
-	PVM = view * projection * skyboxModel;
-
-	glUniform3fv(eyePositionUniformLocation, 1, &eyePosition[0]);
-	glUniform3fv(lightPositionUniformLocation, 1, &lightPosition[0]);
-	glUniform3fv(ambientLightUniformLocation, 1, &ambientLight[0]);
-	glUniform1f(diffLightUniformLocation, lightPowerDiff);
-	glUniform1f(specLightUniformLocation, lightPowerSpec);
-
-	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &skyboxModel[0][0]);
-	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
-	// skybox cube
-	glDepthMask(GL_TRUE);
-	glDepthFunc(GL_LEQUAL);
-	glBindVertexArray(skyboxVAO);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, textures[textInd]);
-	glUniform1i(textureID, 2);
-
-	//glUniform1i(glGetUniformLocation(programID, "cubemap"), 0);
-	//glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_cubemapTexture);
-
-	glDrawArrays(GL_TRIANGLES, 0, 36);
 	
 	glFlush();
 	glutPostRedisplay();

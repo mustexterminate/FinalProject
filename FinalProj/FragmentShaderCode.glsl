@@ -8,7 +8,6 @@ in vec3 TexCoords;
 out vec4 daColor;
 
 uniform sampler2D myTextureSampler;
-uniform samplerCube skybox;
 uniform vec3 ambientLight;
 uniform vec3 lightPositionWorld;
 uniform vec3 eyePositionWorld;
@@ -34,7 +33,7 @@ void main()
 	float brightness = dot(lightVectorWorld, normalize(normalWorld));
 	vec4 diffuseLight = vec4(brightness, brightness, brightness, 1.0);
 
-	daColor = vec4(materialAmbientColor * ambientLight, 1.0) + texture(skybox, TexCoords) 
+	daColor = vec4(materialAmbientColor * ambientLight, 1.0)
 	+ (materialDiffuseColor * clamp(diffuseLight, 0, 1) * vec4(LightColor, 1.0) * lightPowerDiff) 
 	+ (materialSpecularColor * specularLight * vec4(LightColor, 1.0) * lightPowerSpec);
 }
