@@ -28,11 +28,13 @@ int frame = 0;
 float ringRotation = 0.0f;
 //
 float y_delta = 0.1f;
+float x_delta = 0.1f;
 float z_delta = 0.1f;
 float yRotate_delta = 0.1f;
 float zRotate_delta = 0.1f;
 int y_rotate_press_num = 0;
 int z_press_num = 0;
+int x_press_num = 0;
 float lightPowerSpec = 0.5f;
 float lightPowerDiff = 0.3f;
 
@@ -44,8 +46,9 @@ bool spin = true;
 bool mouse = false;
 //Mouse Camera
 float horizontalAngle = 0.0f;
-float verticalAngle = 0.0f;
-
+glm::vec3 cameraPos = glm::vec3(0.0f, 6.0f, 7.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 //
 GLuint textInd = 2;
 GLint programID;
@@ -250,6 +253,7 @@ void keyboard(unsigned char key, int x, int y)
 
 void move(int key, int x, int y) 
 {
+	float cameraSpeed = 10.0f;
 	if (key == GLUT_KEY_UP) {
 		z_press_num += 10;
 	}
@@ -257,10 +261,10 @@ void move(int key, int x, int y)
 		z_press_num -= 10;
 	}
 	if (key == GLUT_KEY_LEFT) {
-		y_rotate_press_num += 20;
+		x_press_num += 10;
 	}
 	if (key == GLUT_KEY_RIGHT) {
-		y_rotate_press_num -= 20;
+		x_press_num -= 10;
 	}
 }
 
@@ -269,7 +273,6 @@ void PassiveMouse(int x, int y)
 	if (mouse) {
 		glutWarpPointer(800 / 2, 600 / 2);
 		horizontalAngle -= mouseSpeed * float(800 / 2 - x) / 30;
-		verticalAngle -= mouseSpeed * float(600 / 2 - y) / 30;
 	}
 }
 
@@ -620,14 +623,9 @@ void paintGL(void)
 	vec3 lightPosition(lightPositionSpecX, lightPositionSpecY, 2.0f);
 	vec3 ambientLight(0.6f, 0.6f, 0.6f);
 	/// Projection & View
-	glm::vec3 direction(
-		sin(glm::radians((float)horizontalAngle)) + 0.0f, //XHorizontal + XVertical
-		0.0f + sin(glm::radians((float)verticalAngle)), //YHorizontal + YVertical
-		cos(glm::radians((float)horizontalAngle)) + cos(glm::radians((float)verticalAngle)) //ZHorizontal + ZVertical
-	);
-	glm::mat4 view = glm::lookAt(vec3(0, 6, -9), //Position
-		direction * vec3(162), //Look At
-		vec3(0, 1, 0)); //Height
+	glm::mat4 view = glm::lookAt(vec3(0 + (x_delta * x_press_num), 6, -6 + (z_delta * z_press_num)), //Position
+		vec3(0 + (x_delta * x_press_num), 2, 5 + (z_delta * z_press_num)), //Look At
+		cameraUp); //Height
 	glm::mat4 projection = glm::perspective(glm::radians(80.0f), 4.0f / 3.0f, 0.1f, 100.0f);
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
@@ -694,7 +692,7 @@ void paintGL(void)
 	glBindVertexArray(VAOs[0]);
 	/// Transformation
 	mat4 modelATransformMatrix = glm::translate(glm::mat4(1.0f),
-		glm::vec3(0.0f, 5.0f, z_delta * z_press_num));
+		glm::vec3(x_delta * x_press_num, 5.0f, z_delta * z_press_num));
 	modelATransformMatrix = glm::rotate(modelATransformMatrix, glm::radians(yRotate_delta*y_rotate_press_num),
 		glm::vec3(0, 1, 0));
 	modelATransformMatrix = glm::scale(modelATransformMatrix, vec3(0.005f));

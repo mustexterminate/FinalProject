@@ -1,12 +1,12 @@
 ﻿  main.cpp
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(220): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(223): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(226): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(229): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(232): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(235): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(238): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(241): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(244): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(247): warning C4305: '-=': truncation from 'double' to 'float'
-  FinalProj.vcxproj -> C:\Users\u3158\source\repos\FinalProject\x64\Debug\FinalProj.exe
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(223): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(226): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(229): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(232): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(235): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(238): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(241): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(244): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(247): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(250): warning C4305: '-=': truncation from 'double' to 'float'
+  FinalProj.vcxproj -> C:\Users\abyoo\source\repos\FinalProject\x64\Debug\FinalProj.exe
