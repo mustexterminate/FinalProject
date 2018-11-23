@@ -270,10 +270,8 @@ void move(int key, int x, int y)
 
 void PassiveMouse(int x, int y)
 {
-	if (mouse) {
-		glutWarpPointer(800 / 2, 600 / 2);
-		horizontalAngle -= mouseSpeed * float(800 / 2 - x) / 30;
-	}
+	glutWarpPointer(800 / 2, 600 / 2);
+	horizontalAngle += mouseSpeed * float(800 / 2 - x) / 30;
 }
 
 bool loadOBJ(
@@ -623,11 +621,15 @@ void paintGL(void)
 	vec3 lightPosition(lightPositionSpecX, lightPositionSpecY, 2.0f);
 	vec3 ambientLight(0.6f, 0.6f, 0.6f);
 	/// Projection & View
-	glm::mat4 view = glm::lookAt(vec3(0 + (x_delta * x_press_num), 6, -6 + (z_delta * z_press_num)), //Position
+	glm::mat4 view = glm::lookAt(vec3((x_delta * x_press_num), 
+		6,
+		-6 + (z_delta * z_press_num)), //Position
 		vec3(0 + (x_delta * x_press_num), 2, 5 + (z_delta * z_press_num)), //Look At
 		cameraUp); //Height
 	glm::mat4 projection = glm::perspective(glm::radians(80.0f), 4.0f / 3.0f, 0.1f, 100.0f);
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
+	modelMatrix = glm::rotate(modelMatrix, glm::radians(horizontalAngle),
+		glm::vec3(0, 1, 0));
 
 	glUseProgram(skyboxID);
 
@@ -691,11 +693,14 @@ void paintGL(void)
 	// Model 1: SpaceCraft
 	glBindVertexArray(VAOs[0]);
 	/// Transformation
-	mat4 modelATransformMatrix = glm::translate(glm::mat4(1.0f),
+	mat4 modelATransformMatrix = modelATransformMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(horizontalAngle),
+		glm::vec3(0, 1, 0)); 
+	modelATransformMatrix = glm::translate(glm::mat4(1.0f),
 		glm::vec3(x_delta * x_press_num, 5.0f, z_delta * z_press_num));
-	modelATransformMatrix = glm::rotate(modelATransformMatrix, glm::radians(yRotate_delta*y_rotate_press_num),
-		glm::vec3(0, 1, 0));
-	modelATransformMatrix = glm::scale(modelATransformMatrix, vec3(0.005f));
+	modelATransformMatrix = glm::scale(modelATransformMatrix, vec3(0.003f));
+	
+	
+	
 	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelATransformMatrix[0][0]);
 	PVM = projection * view * modelATransformMatrix;
 	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
