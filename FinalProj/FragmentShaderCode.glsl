@@ -11,6 +11,7 @@ uniform sampler2D myTextureSampler;
 uniform vec3 ambientLight;
 uniform vec3 lightPositionWorld;
 uniform vec3 eyePositionWorld;
+uniform vec3 collideColour;
 uniform float lightPowerSpec;
 uniform float lightPowerDiff;
 
@@ -33,7 +34,7 @@ void main()
 	float brightness = dot(lightVectorWorld, normalize(normalWorld));
 	vec4 diffuseLight = vec4(brightness, brightness, brightness, 1.0);
 
-	daColor = vec4(materialAmbientColor * ambientLight, 1.0)
-	+ (materialDiffuseColor * clamp(diffuseLight, 0, 1) * vec4(LightColor, 1.0) * lightPowerDiff) 
+	daColor = vec4(materialAmbientColor * ambientLight, 1.0) + vec4(collideColour, 1.0f)
+	+ (materialDiffuseColor * clamp(diffuseLight, 0, 1) * vec4(LightColor, 1.0) * lightPowerDiff)
 	+ (materialSpecularColor * specularLight * vec4(LightColor, 1.0) * lightPowerSpec);
 }
