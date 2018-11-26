@@ -623,8 +623,7 @@ void paintGL(void)
 	vec3 lightPosition(lightPositionSpecX, lightPositionSpecY, 2.0f);
 	vec3 ambientLight(0.6f, 0.6f, 0.6f);
 	vec3 collide(0, 0, 0);
-	vec3 cameraPos = vec3(0.995f*(x_delta * x_press_num), 6, -6 + (z_delta * z_press_num));
-	//vec3 cameraFront = vec3(0.995f*(x_delta * x_press_num), 5, (z_delta * z_press_num));
+	vec3 objectPos = vec3(x_delta * x_press_num, 5, (z_delta * z_press_num));
 	bool reverse = (horizontalAngle > 90 && horizontalAngle < 180) || (horizontalAngle > 270 && horizontalAngle < 360);
 	vec3 cameraDirection(
 		sin(glm::radians((float)horizontalAngle)), //XHorizontal
@@ -632,8 +631,8 @@ void paintGL(void)
 		cos(glm::radians((float)horizontalAngle)) //ZHorizontal
 	);
 	/// Projection & View
-	glm::mat4 view = glm::lookAt(cameraPos, //Position
-		cameraDirection * vec3(6) + vec3(0, -1, 0) + cameraPos, //Look At
+	glm::mat4 view = glm::lookAt(cameraDirection * vec3(6) + objectPos + vec3(0, 1, 0), //Position
+		objectPos, //Look At
 		cameraUp); //Height
 	glm::mat4 projection = glm::perspective(glm::radians(80.0f), 4.0f / 3.0f, 0.1f, 100.0f);
 	mat4 modelMatrix = mat4(1.0f);
@@ -722,7 +721,7 @@ void paintGL(void)
 	// Model 1: SpaceCraft
 	glBindVertexArray(VAOs[0]);
 	/// Green Colouring
-	int spacecraftX = x_delta * x_press_num;
+	int spacecraftX = 0.995f*(x_delta * x_press_num);
 	int spacecraftZ = z_delta * z_press_num;
 	int ringTLength = sizeof(ringTranslations) / sizeof(vec3);
 	for (int i = 0; i < ringTLength; i++)
@@ -742,9 +741,11 @@ void paintGL(void)
 	/// Transformation
 	//mat4 modelATransformMatrix = mat4(1.0f);
 	mat4 modelATransformMatrix = glm::translate(glm::mat4(1.0f),
-		glm::vec3(spacecraftX, 5.0f, spacecraftZ)); 
+		glm::vec3(spacecraftX, 5.0f, spacecraftZ));
+	modelATransformMatrix = glm::rotate(modelATransformMatrix, glm::radians(horizontalAngle), vec3(0, 1, 0));
 	modelATransformMatrix = glm::scale(modelATransformMatrix, vec3(0.005f));
-
+	modelATransformMatrix = glm::translate(modelATransformMatrix, vec3(0, 0, 6));
+	modelATransformMatrix = glm::rotate(modelATransformMatrix, glm::radians(180.0f), vec3(0, 1, 0));
 	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelATransformMatrix[0][0]);
 	PVM = projection * view * modelATransformMatrix;
 	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
