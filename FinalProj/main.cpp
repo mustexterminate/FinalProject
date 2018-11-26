@@ -273,7 +273,7 @@ void move(int key, int x, int y)
 void PassiveMouse(int x, int y)
 {
 	glutWarpPointer(800 / 2, 600 / 2);
-	horizontalAngle += mouseSpeed * float(800 / 2 - x) / 30;
+	horizontalAngle += mouseSpeed * float(800 / 2 - x);
 }
 
 bool loadOBJ(
@@ -624,18 +624,19 @@ void paintGL(void)
 	vec3 ambientLight(0.6f, 0.6f, 0.6f);
 	vec3 collide(0, 0, 0);
 	vec3 cameraPos = vec3(0.995f*(x_delta * x_press_num), 6, -6 + (z_delta * z_press_num));
-	vec3 cameraFront = vec3(0.995f*(x_delta * x_press_num), 5, (z_delta * z_press_num));
-	vec3 cameraDirection = glm::normalize(cameraPos - cameraFront);
-	vec3 cameraRight = glm::normalize(glm::cross(cameraUp, cameraDirection));
+	//vec3 cameraFront = vec3(0.995f*(x_delta * x_press_num), 5, (z_delta * z_press_num));
+	bool reverse = (horizontalAngle > 90 && horizontalAngle < 180) || (horizontalAngle > 270 && horizontalAngle < 360);
+	vec3 cameraDirection(
+		sin(glm::radians((float)horizontalAngle)), //XHorizontal
+		0, //YHorizontal
+		cos(glm::radians((float)horizontalAngle)) //ZHorizontal
+	);
 	/// Projection & View
-	glm::mat4 view = glm::lookAt(cameraPos+ (cameraDirection*3.0f), //Position
-		cameraFront, //Look At
+	glm::mat4 view = glm::lookAt(cameraPos, //Position
+		cameraDirection * vec3(6) + vec3(0, -1, 0) + cameraPos, //Look At
 		cameraUp); //Height
 	glm::mat4 projection = glm::perspective(glm::radians(80.0f), 4.0f / 3.0f, 0.1f, 100.0f);
-	glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), cameraPos);
-	modelMatrix = glm::rotate(modelMatrix, glm::radians(horizontalAngle*-10),
-		glm::vec3(0, 1, 0));
-	modelMatrix = glm::translate(modelMatrix, -cameraPos);
+	mat4 modelMatrix = mat4(1.0f);
 	
 
 	glUseProgram(skyboxID);
