@@ -743,10 +743,7 @@ void paintGL(void)
 	mat4 modelATransformMatrix = glm::translate(glm::mat4(1.0f),
 		glm::vec3(spacecraftX, 5.0f, spacecraftZ)); 
 	modelATransformMatrix = glm::scale(modelATransformMatrix, vec3(0.005f));
-	modelATransformMatrix = glm::rotate(modelATransformMatrix, glm::radians(horizontalAngle*0.002f),
-		glm::vec3(0, 1, 0));
-	modelATransformMatrix = glm::translate(modelATransformMatrix,
-		glm::vec3(-spacecraftX, -5.0f, -spacecraftZ));
+
 	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelATransformMatrix[0][0]);
 	PVM = projection * view * modelATransformMatrix;
 	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
