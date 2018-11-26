@@ -65,7 +65,7 @@ GLuint normalBuffers[4];
 GLuint drawSizes[4];
 GLuint textures[5];
 GLuint skybox_cubemapTexture;
-const vec3 ringTranslations[] = {vec3(0.0f, 5.0f, 0.0f)};
+const vec3 ringTranslations[] = {vec3(0.0f, 5.0f, 0.0f), vec3(0.0f, 5.0f, 10.0f)};
 
 
 //a series utilities for setting shader parameters 
@@ -701,43 +701,46 @@ void paintGL(void)
 	/// Draw
 	glDrawArrays(GL_TRIANGLES, 0, drawSizes[2]);
 
-	// Model 2: Ring
-	glBindVertexArray(VAOs[3]);
-	/// Texture
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, textures[1]);
-	glUniform1i(textureID, 1);
-	/// Transformation
-	mat4 modelBTranslate = glm::translate(mat4(1.0f), ringTranslations[0]);
-	mat4 modelBScale = glm::scale(mat4(1.0f), glm::vec3(0.0625));
-	mat4 modelBRotate = glm::rotate(mat4(1.0f), glm::radians(90.0f), vec3(0, 0, 1));
-	modelBRotate = glm::rotate(modelBRotate, glm::radians(frame * y_delta * 3), vec3(1, 0, 0));
-	mat4 modelBTransformMatrix = modelBTranslate * modelBScale * modelBRotate; //Rotate --> Scale --> Translate
-	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelBTransformMatrix[0][0]);
-	PVM = projection * view * modelBTransformMatrix;
-	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
-	/// Draw
-	glDrawArrays(GL_TRIANGLES, 0, drawSizes[3]);
+	float spacecraftX = objectPos.x;
+	float spacecraftZ = objectPos.z;
+	int ringTLength = sizeof(ringTranslations) / sizeof(vec3);
+	bool changeColour = false;
+	for (int i = 0; i < ringTLength; i++)
+	{
+		//Draw Ring
+		// Model 2: Ring
+		glBindVertexArray(VAOs[3]);
+		/// Texture
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, textures[1]);
+		glUniform1i(textureID, 1);
+		/// Transformation
+		mat4 modelBTranslate = glm::translate(mat4(1.0f), ringTranslations[i]);
+		mat4 modelBScale = glm::scale(mat4(1.0f), glm::vec3(0.0625));
+		mat4 modelBRotate = glm::rotate(mat4(1.0f), glm::radians(90.0f), vec3(0, 0, 1));
+		modelBRotate = glm::rotate(modelBRotate, glm::radians(frame * y_delta * 3), vec3(1, 0, 0));
+		mat4 modelBTransformMatrix = modelBTranslate * modelBScale * modelBRotate; //Rotate --> Scale --> Translate
+		glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelBTransformMatrix[0][0]);
+		PVM = projection * view * modelBTransformMatrix;
+		glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
+		/// Draw
+		glDrawArrays(GL_TRIANGLES, 0, drawSizes[3]);
+		//Collision Detection
+		int x = ringTranslations[i].x;
+		int z = ringTranslations[i].z;
+		///Change Colour if Collision Detected
+		if ((x - 4.5f) < spacecraftX && (x + 4.5f) > spacecraftX &&
+			(z - 4.5f) < spacecraftZ && (z + 4.5f) > spacecraftZ) changeColour = true;
+	}
+	
 
 	// Model 1: SpaceCraft
 	glBindVertexArray(VAOs[0]);
 	/// Green Colouring
-	int spacecraftX = 0.995f*(x_delta * x_press_num);
-	int spacecraftZ = z_delta * z_press_num;
-	int ringTLength = sizeof(ringTranslations) / sizeof(vec3);
-	for (int i = 0; i < ringTLength; i++)
+	if (changeColour)
 	{
-		int x = ringTranslations[i].x;
-		int z = ringTranslations[i].z;
-		//Collision Detection
-		if ((x - 4.5f) < spacecraftX && (x + 4.5f) > spacecraftX &&
-			(z - 4.5f) < spacecraftZ && (z + 4.5f) > spacecraftZ)
-		{
-			//Execute Process
-			collide = vec3(0, 0.5, 0);
-			glUniform3fv(collideUniformLocation, 1, &collide[0]);
-			break;
-		}
+		collide = vec3(0, 0.5, 0);
+		glUniform3fv(collideUniformLocation, 1, &collide[0]);
 	}
 	/// Transformation
 	//mat4 modelATransformMatrix = mat4(1.0f);
