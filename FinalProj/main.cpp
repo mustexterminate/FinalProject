@@ -624,15 +624,16 @@ void paintGL(void)
 	vec3 ambientLight(0.6f, 0.6f, 0.6f);
 	vec3 collide(0, 0, 0);
 	vec3 objectPos = vec3(x_delta * x_press_num, 5, (z_delta * z_press_num));
-	bool reverse = (horizontalAngle > 90 && horizontalAngle < 180) || (horizontalAngle > 270 && horizontalAngle < 360);
 	vec3 cameraDirection(
-		sin(glm::radians((float)horizontalAngle)), //XHorizontal
-		0, //YHorizontal
-		cos(glm::radians((float)horizontalAngle)) //ZHorizontal
+		-sin(glm::radians((float)horizontalAngle)), //X
+		0, //Y
+		-cos(glm::radians((float)horizontalAngle)) //Z
 	);
 	/// Projection & View
-	glm::mat4 view = glm::lookAt(cameraDirection * vec3(6) + objectPos + vec3(0, 1, 0), //Position
-		objectPos, //Look At
+								//Translate Camera to 6.0f behind the Model
+															//Translate Camera to objectPosition and 1 Y above object
+	glm::mat4 view = glm::lookAt(cameraDirection * vec3(4) + objectPos + vec3(0, 1, 0), //Position
+		objectPos + cameraDirection * vec3(-2), //Look At: Watch in front of object
 		cameraUp); //Height
 	glm::mat4 projection = glm::perspective(glm::radians(80.0f), 4.0f / 3.0f, 0.1f, 100.0f);
 	mat4 modelMatrix = mat4(1.0f);
@@ -745,7 +746,6 @@ void paintGL(void)
 	modelATransformMatrix = glm::rotate(modelATransformMatrix, glm::radians(horizontalAngle), vec3(0, 1, 0));
 	modelATransformMatrix = glm::scale(modelATransformMatrix, vec3(0.005f));
 	modelATransformMatrix = glm::translate(modelATransformMatrix, vec3(0, 0, 6));
-	modelATransformMatrix = glm::rotate(modelATransformMatrix, glm::radians(180.0f), vec3(0, 1, 0));
 	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelATransformMatrix[0][0]);
 	PVM = projection * view * modelATransformMatrix;
 	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
