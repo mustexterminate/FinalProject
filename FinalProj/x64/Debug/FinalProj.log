@@ -17,12 +17,22 @@ c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(268): warning C4244:
 c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(269): warning C4244: '-=': conversion from 'float' to 'int', possible loss of data
 c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(272): warning C4244: '-=': conversion from 'float' to 'int', possible loss of data
 c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(273): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
-c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(733): warning C4244: 'initializing': conversion from 'const T' to 'int', possible loss of data
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(734): warning C4244: 'initializing': conversion from 'const T' to 'int', possible loss of data
           with
           [
               T=float
           ]
-c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(734): warning C4244: 'initializing': conversion from 'const T' to 'int', possible loss of data
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(735): warning C4244: 'initializing': conversion from 'const T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(762): warning C4244: 'initializing': conversion from 'const T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(763): warning C4244: 'initializing': conversion from 'const T' to 'int', possible loss of data
           with
           [
               T=float

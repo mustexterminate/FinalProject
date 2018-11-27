@@ -554,47 +554,47 @@ void sendDataToOpenGL()
 	//Skybox Cube
 	GLfloat skyboxVertices[] = {
 		// positions          
-		-50.0f,  50.0f, -50.0f,
-		-50.0f, -50.0f, -50.0f,
-		50.0f, -50.0f, -50.0f,
-		50.0f, -50.0f, -50.0f,
-		50.0f,  50.0f, -50.0f,
-		-50.0f,  50.0f, -50.0f,
+		-70.0f,  70.0f, -70.0f,
+		-70.0f, -70.0f, -70.0f,
+		70.0f, -70.0f, -70.0f,
+		70.0f, -70.0f, -70.0f,
+		70.0f,  70.0f, -70.0f,
+		-70.0f,  70.0f, -70.0f,
 
-		-50.0f, -50.0f,  50.0f,
-		-50.0f, -50.0f, -50.0f,
-		-50.0f,  50.0f, -50.0f,
-		-50.0f,  50.0f, -50.0f,
-		-50.0f,  50.0f,  50.0f,
-		-50.0f, -50.0f,  50.0f,
+		-70.0f, -70.0f,  70.0f,
+		-70.0f, -70.0f, -70.0f,
+		-70.0f,  70.0f, -70.0f,
+		-70.0f,  70.0f, -70.0f,
+		-70.0f,  70.0f,  70.0f,
+		-70.0f, -70.0f,  70.0f,
 
-		50.0f, -50.0f, -50.0f,
-		50.0f, -50.0f,  50.0f,
-		50.0f,  50.0f,  50.0f,
-		50.0f,  50.0f,  50.0f,
-		50.0f,  50.0f, -50.0f,
-		50.0f, -50.0f, -50.0f,
+		70.0f, -70.0f, -70.0f,
+		70.0f, -70.0f,  70.0f,
+		70.0f,  70.0f,  70.0f,
+		70.0f,  70.0f,  70.0f,
+		70.0f,  70.0f, -70.0f,
+		70.0f, -70.0f, -70.0f,
 
-		-50.0f, -50.0f,  50.0f,
-		-50.0f,  50.0f,  50.0f,
-		50.0f,  50.0f,  50.0f,
-		50.0f,  50.0f,  50.0f,
-		50.0f, -50.0f,  50.0f,
-		-50.0f, -50.0f,  50.0f,
+		-70.0f, -70.0f,  70.0f,
+		-70.0f,  70.0f,  70.0f,
+		70.0f,  70.0f,  70.0f,
+		70.0f,  70.0f,  70.0f,
+		70.0f, -70.0f,  70.0f,
+		-70.0f, -70.0f,  70.0f,
 
-		-50.0f,  50.0f, -50.0f,
-		50.0f,  50.0f, -50.0f,
-		50.0f,  50.0f,  50.0f,
-		50.0f,  50.0f,  50.0f,
-		-50.0f,  50.0f,  50.0f,
-		-50.0f,  50.0f, -50.0f,
+		-70.0f,  70.0f, -70.0f,
+		70.0f,  70.0f, -70.0f,
+		70.0f,  70.0f,  70.0f,
+		70.0f,  70.0f,  70.0f,
+		-70.0f,  70.0f,  70.0f,
+		-70.0f,  70.0f, -70.0f,
 
-		-50.0f, -50.0f, -50.0f,
-		-50.0f, -50.0f,  50.0f,
-		50.0f, -50.0f, -50.0f,
-		50.0f, -50.0f, -50.0f,
-		-50.0f, -50.0f,  50.0f,
-		50.0f, -50.0f,  50.0f
+		-70.0f, -70.0f, -70.0f,
+		-70.0f, -70.0f,  70.0f,
+		70.0f, -70.0f, -70.0f,
+		70.0f, -70.0f, -70.0f,
+		-70.0f, -70.0f,  70.0f,
+		70.0f, -70.0f,  70.0f
 	};
 
 	glGenVertexArrays(1, &skyboxVAO);
@@ -649,7 +649,8 @@ void paintGL(void)
 	GLuint matrixLocation = glGetUniformLocation(skyboxID, "PVM");
 
 	//
-	mat4 PVM = projection * view * modelMatrix;
+	mat4 skyboxModelMatrix = glm::translate(mat4(1.0f), objectPos);
+	mat4 PVM = projection * view * skyboxModelMatrix;
 	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
 	// skybox cube
 	glDepthMask(GL_FALSE);
@@ -737,7 +738,6 @@ void paintGL(void)
 			(z - 3.0f) < spacecraftZ && (z + 4.5f) > spacecraftZ) changeColour = true;
 	}
 	
-	/*
 	for (int i = 0; i < ringTLength; i++)
 	{
 		//Draw Asteroid
@@ -765,7 +765,7 @@ void paintGL(void)
 		if ((x - 3.0f) < spacecraftX && (x + 4.5f) > spacecraftX &&
 			(z - 3.0f) < spacecraftZ && (z + 4.5f) > spacecraftZ) changeColour = true;
 	}
-	*/
+	
 	// Model 1: SpaceCraft
 	glBindVertexArray(VAOs[0]);
 	/// Green Colouring
