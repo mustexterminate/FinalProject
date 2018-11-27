@@ -63,7 +63,7 @@ GLuint vertexBuffers[4];
 GLuint uvBuffers[4];
 GLuint normalBuffers[4];
 GLuint drawSizes[4];
-GLuint textures[5];
+GLuint textures[7];
 GLuint skybox_cubemapTexture;
 const vec3 ringTranslations[] = {vec3(0.0f, 5.0f, 0.0f), vec3(0.0f, 5.0f, 10.0f)};
 
@@ -257,16 +257,20 @@ void move(int key, int x, int y)
 {
 	float cameraSpeed = 10.0f;
 	if (key == GLUT_KEY_UP) {
-		z_press_num += 10;
+		z_press_num += 10*glm::cos(glm::radians(horizontalAngle));
+		x_press_num += 10*glm::sin(glm::radians(horizontalAngle));
 	}
 	if (key == GLUT_KEY_DOWN) {
-		z_press_num -= 10;
+		z_press_num -= 10 * glm::cos(glm::radians(horizontalAngle));
+		x_press_num -= 10 * glm::sin(glm::radians(horizontalAngle));
 	}
 	if (key == GLUT_KEY_LEFT) {
-		x_press_num += 10;
+		x_press_num += 10 * glm::cos(glm::radians(horizontalAngle));
+		z_press_num -= 10 * glm::sin(glm::radians(horizontalAngle));
 	}
 	if (key == GLUT_KEY_RIGHT) {
-		x_press_num -= 10;
+		x_press_num -= 10 * glm::cos(glm::radians(horizontalAngle));
+		z_press_num += 10 * glm::sin(glm::radians(horizontalAngle));
 	}
 }
 
@@ -546,7 +550,7 @@ void sendDataToOpenGL()
 	textures[2] = loadBMP_custom("sources/texture/theme1.bmp");
 	textures[3] = loadBMP_custom("sources/texture/theme2.bmp");
 	textures[4] = loadBMP_custom("sources/texture/theme3.bmp");
-
+	textures[5] = loadBMP_custom("sources/texture/RockTexture.bmp");
 	//Skybox Cube
 	GLfloat skyboxVertices[] = {
 		// positions          
@@ -630,8 +634,8 @@ void paintGL(void)
 		-cos(glm::radians((float)horizontalAngle)) //Z
 	);
 	/// Projection & View
-								//Translate Camera to 6.0f behind the Model
-															//Translate Camera to objectPosition and 1 Y above object
+	//Translate Camera to 6.0f behind the Model
+	//Translate Camera to objectPosition and 1 Y above object
 	glm::mat4 view = glm::lookAt(cameraDirection * vec3(4) + objectPos + vec3(0, 1, 0), //Position
 		objectPos + cameraDirection * vec3(-2), //Look At: Watch in front of object
 		cameraUp); //Height
@@ -662,7 +666,7 @@ void paintGL(void)
 
 
 	glDepthMask(GL_TRUE);
-
+	glEnable(GL_DEPTH_TEST);
 	// programID
 	glUseProgram(programID);
 	// Get Locations
@@ -729,11 +733,39 @@ void paintGL(void)
 		int x = ringTranslations[i].x;
 		int z = ringTranslations[i].z;
 		///Change Colour if Collision Detected
-		if ((x - 4.5f) < spacecraftX && (x + 4.5f) > spacecraftX &&
-			(z - 4.5f) < spacecraftZ && (z + 4.5f) > spacecraftZ) changeColour = true;
+		if ((x - 3.0f) < spacecraftX && (x + 4.5f) > spacecraftX &&
+			(z - 3.0f) < spacecraftZ && (z + 4.5f) > spacecraftZ) changeColour = true;
 	}
 	
-
+	/*
+	for (int i = 0; i < ringTLength; i++)
+	{
+		//Draw Asteroid
+		// Model 4: Asteroid
+		glBindVertexArray(VAOs[1]);
+		/// Texture
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, textures[5]);
+		glUniform1i(textureID, 1);
+		/// Transformation
+		mat4 modelBTranslate = glm::translate(mat4(1.0f), ringTranslations[i]);
+		mat4 modelBScale = glm::scale(mat4(1.0f), glm::vec3(0.0625));
+		mat4 modelBRotate = glm::rotate(mat4(1.0f), glm::radians(90.0f), vec3(0, 0, 1));
+		modelBRotate = glm::rotate(modelBRotate, glm::radians(frame * y_delta * 3), vec3(1, 0, 0));
+		mat4 modelBTransformMatrix = modelBTranslate * modelBScale * modelBRotate; //Rotate --> Scale --> Translate
+		glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelBTransformMatrix[0][0]);
+		PVM = projection * view * modelBTransformMatrix;
+		glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
+		/// Draw
+		glDrawArrays(GL_TRIANGLES, 0, drawSizes[3]);
+		//Collision Detection
+		int x = ringTranslations[i].x;
+		int z = ringTranslations[i].z;
+		///Change Colour if Collision Detected
+		if ((x - 3.0f) < spacecraftX && (x + 4.5f) > spacecraftX &&
+			(z - 3.0f) < spacecraftZ && (z + 4.5f) > spacecraftZ) changeColour = true;
+	}
+	*/
 	// Model 1: SpaceCraft
 	glBindVertexArray(VAOs[0]);
 	/// Green Colouring
@@ -747,8 +779,8 @@ void paintGL(void)
 	mat4 modelATransformMatrix = glm::translate(glm::mat4(1.0f),
 		glm::vec3(spacecraftX, 5.0f, spacecraftZ));
 	modelATransformMatrix = glm::rotate(modelATransformMatrix, glm::radians(horizontalAngle), vec3(0, 1, 0));
-	modelATransformMatrix = glm::scale(modelATransformMatrix, vec3(0.005f));
 	modelATransformMatrix = glm::translate(modelATransformMatrix, vec3(0, 0, 6));
+	modelATransformMatrix = glm::scale(modelATransformMatrix, vec3(0.005f));
 	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelATransformMatrix[0][0]);
 	PVM = projection * view * modelATransformMatrix;
 	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);

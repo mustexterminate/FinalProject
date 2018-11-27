@@ -1,14 +1,30 @@
 ﻿  main.cpp
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(225): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(228): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(231): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(234): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(237): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(240): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(243): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(246): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(249): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(252): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(729): warning C4244: 'initializing': conversion from 'const float' to 'int', possible loss of data
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(730): warning C4244: 'initializing': conversion from 'const float' to 'int', possible loss of data
-  FinalProj.vcxproj -> C:\Users\u3158\source\repos\FinalProject\x64\Debug\FinalProj.exe
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(225): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(228): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(231): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(234): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(237): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(240): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(243): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(246): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(249): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(252): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(260): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(261): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(264): warning C4244: '-=': conversion from 'float' to 'int', possible loss of data
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(265): warning C4244: '-=': conversion from 'float' to 'int', possible loss of data
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(268): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(269): warning C4244: '-=': conversion from 'float' to 'int', possible loss of data
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(272): warning C4244: '-=': conversion from 'float' to 'int', possible loss of data
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(273): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(733): warning C4244: 'initializing': conversion from 'const T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+c:\users\abyoo\source\repos\finalproject\finalproj\main.cpp(734): warning C4244: 'initializing': conversion from 'const T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+  FinalProj.vcxproj -> C:\Users\abyoo\source\repos\FinalProject\x64\Debug\FinalProj.exe
