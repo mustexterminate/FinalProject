@@ -65,8 +65,10 @@ GLuint normalBuffers[4];
 GLuint drawSizes[4];
 GLuint textures[7];
 GLuint skybox_cubemapTexture;
-const vec3 ringTranslations[] = {vec3(0.0f, 5.0f, 0.0f), vec3(0.0f, 5.0f, 10.0f)};
-
+const vec3 ringTranslations[] = {vec3(0.0f, 5.0f, 10.0f), vec3(2.0f, 5.0f, 18.0f), vec3(-4.0f, 5.0f, 26.0f)};
+const int asteroidCount = 50;
+vec3 asteroidTranslations[asteroidCount];
+bool asteroidDisappear[asteroidCount];
 
 //a series utilities for setting shader parameters 
 void setMat4(const std::string &name, glm::mat4& value)
@@ -614,6 +616,16 @@ void sendDataToOpenGL()
 
 
 	textureID = glGetUniformLocation(programID, "myTextureSampler");
+
+	//Asteroid Translations
+	for (int i = 0; i < asteroidCount; i++)
+	{
+		float x = (rand() % 200) / 25.0f + (rand() % 200) / 25.0f;
+		float y = rand() % 200 / 100.0f + rand() % 200 / 100.0f;
+		float z = (rand() % 200) / 25.0f + (rand() % 200) / 25.0f;
+		asteroidTranslations[i] = vec3(x - 50.0f, y + 4, z);
+		printf("x: %f, y: %f, z:%f\n", x, y, z);
+	}
 }
 
 void paintGL(void)
@@ -706,12 +718,28 @@ void paintGL(void)
 	/// Draw
 	glDrawArrays(GL_TRIANGLES, 0, drawSizes[2]);
 
+	//Rings
 	float spacecraftX = objectPos.x;
 	float spacecraftZ = objectPos.z;
 	int ringTLength = sizeof(ringTranslations) / sizeof(vec3);
 	bool changeColour = false;
 	for (int i = 0; i < ringTLength; i++)
 	{
+		//Collision Detection
+		float x = ringTranslations[i].x;
+		float z = ringTranslations[i].z;
+		///Change Colour if Collision Detected
+		if ((x - 2.8f) < spacecraftX && (x + 4.0f) > spacecraftX &&
+			(z - 2.8f) < spacecraftZ && (z + 4.0f) > spacecraftZ) {
+			collide = vec3(0, 0.5, 0);
+			glUniform3fv(collideUniformLocation, 1, &collide[0]);
+			changeColour = true;
+		}
+		else {
+			collide = vec3(0, 0.0, 0);
+			glUniform3fv(collideUniformLocation, 1, &collide[0]);
+		}
+
 		//Draw Ring
 		// Model 2: Ring
 		glBindVertexArray(VAOs[3]);
@@ -730,16 +758,14 @@ void paintGL(void)
 		glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
 		/// Draw
 		glDrawArrays(GL_TRIANGLES, 0, drawSizes[3]);
-		//Collision Detection
-		int x = ringTranslations[i].x;
-		int z = ringTranslations[i].z;
-		///Change Colour if Collision Detected
-		if ((x - 3.0f) < spacecraftX && (x + 4.5f) > spacecraftX &&
-			(z - 3.0f) < spacecraftZ && (z + 4.5f) > spacecraftZ) changeColour = true;
 	}
 	
-	for (int i = 0; i < ringTLength; i++)
+	//Asteroids
+	for (int i = 0; i < asteroidCount; i++)
 	{
+		//Skip asteroidDisappears
+		///Change Colour if Collision Detected
+		if (asteroidDisappear[i]) continue;
 		//Draw Asteroid
 		// Model 4: Asteroid
 		glBindVertexArray(VAOs[1]);
@@ -747,23 +773,23 @@ void paintGL(void)
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, textures[5]);
 		glUniform1i(textureID, 1);
+		//Orbit
+		float x = (1 + asteroidTranslations[i].x) * cos(glm::radians(frame * y_delta * 2 + i * 20)) + 5.5f;
+		float z = (asteroidTranslations[i].z) * sin(glm::radians(frame * y_delta * 2 + i * 20)) + 5.5f;//Circles in Ellipse Shape
 		/// Transformation
-		mat4 modelBTranslate = glm::translate(mat4(1.0f), ringTranslations[i]);
-		mat4 modelBScale = glm::scale(mat4(1.0f), glm::vec3(0.0625));
-		mat4 modelBRotate = glm::rotate(mat4(1.0f), glm::radians(90.0f), vec3(0, 0, 1));
-		modelBRotate = glm::rotate(modelBRotate, glm::radians(frame * y_delta * 3), vec3(1, 0, 0));
-		mat4 modelBTransformMatrix = modelBTranslate * modelBScale * modelBRotate; //Rotate --> Scale --> Translate
-		glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelBTransformMatrix[0][0]);
-		PVM = projection * view * modelBTransformMatrix;
+		mat4 modelCTranslate = glm::translate(mat4(1.0f), vec3(x, asteroidTranslations[i].y, z)); //Rotation
+		mat4 modelCRotate = glm::rotate(mat4(1.0f), glm::radians(y_delta * frame), vec3(0, 1, 0));
+		mat4 modelCTransformMatrix = modelCTranslate * modelCRotate; //Rotate --> Scale --> Translate
+		glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelCTransformMatrix[0][0]);
+		PVM = projection * view * modelCTransformMatrix;
 		glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
 		/// Draw
-		glDrawArrays(GL_TRIANGLES, 0, drawSizes[3]);
+		glDrawArrays(GL_TRIANGLES, 0, drawSizes[1]);
 		//Collision Detection
-		int x = ringTranslations[i].x;
-		int z = ringTranslations[i].z;
+		
 		///Change Colour if Collision Detected
-		if ((x - 3.0f) < spacecraftX && (x + 4.5f) > spacecraftX &&
-			(z - 3.0f) < spacecraftZ && (z + 4.5f) > spacecraftZ) changeColour = true;
+		if ((x - 0.5f) < spacecraftX && (x + 1.5f) > spacecraftX &&
+			(z - 0.5f) < spacecraftZ && (z + 1.5f) > spacecraftZ) asteroidDisappear[i] = true;
 	}
 	
 	// Model 1: SpaceCraft
@@ -779,7 +805,7 @@ void paintGL(void)
 	mat4 modelATransformMatrix = glm::translate(glm::mat4(1.0f),
 		glm::vec3(spacecraftX, 5.0f, spacecraftZ));
 	modelATransformMatrix = glm::rotate(modelATransformMatrix, glm::radians(horizontalAngle), vec3(0, 1, 0));
-	modelATransformMatrix = glm::translate(modelATransformMatrix, vec3(0, 0, 6));
+	modelATransformMatrix = glm::translate(modelATransformMatrix, vec3(0, 0, 4));
 	modelATransformMatrix = glm::scale(modelATransformMatrix, vec3(0.005f));
 	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelATransformMatrix[0][0]);
 	PVM = projection * view * modelATransformMatrix;
