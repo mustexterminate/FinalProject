@@ -58,11 +58,11 @@ GLuint textureID;
 //Model Information
 GLuint skyboxVAO;
 GLuint skyboxVBO;
-GLuint VAOs[4];
-GLuint vertexBuffers[4];
-GLuint uvBuffers[4];
-GLuint normalBuffers[4];
-GLuint drawSizes[4];
+GLuint VAOs[5];
+GLuint vertexBuffers[5];
+GLuint uvBuffers[5];
+GLuint normalBuffers[5];
+GLuint drawSizes[5];
 GLuint textures[7];
 GLuint skybox_cubemapTexture;
 const vec3 ringTranslations[] = {vec3(0.0f, 5.0f, 10.0f), vec3(2.0f, 5.0f, 18.0f), vec3(-4.0f, 5.0f, 26.0f)};
@@ -553,6 +553,7 @@ void sendDataToOpenGL()
 	textures[3] = loadBMP_custom("sources/texture/theme2.bmp");
 	textures[4] = loadBMP_custom("sources/texture/theme3.bmp");
 	textures[5] = loadBMP_custom("sources/texture/RockTexture.bmp");
+	textures[6] = loadBMP_custom("sources/texture/WonderStarTexture.bmp");
 	//Skybox Cube
 	GLfloat skyboxVertices[] = {
 		// positions          
@@ -613,6 +614,7 @@ void sendDataToOpenGL()
 	sendModelData("sources/rock.obj", 1);
 	sendModelData("sources/plane.obj", 2);
 	sendModelData("sources/Ring.obj", 3);
+	sendModelData("sources/planet.obj", 4);
 
 
 	textureID = glGetUniformLocation(programID, "myTextureSampler");
@@ -705,7 +707,7 @@ void paintGL(void)
 	glUniform1f(specLightUniformLocation, lightPowerSpec);
 
 	//Keeping this For Reference, to be removed when submitting [allows us to tell where the x & z axis expand to]
-	// Model 3: Plane
+	// Orientation Plane
 	glBindVertexArray(VAOs[2]);
 	/// Transformation
 	PVM = projection * view * modelMatrix;
@@ -741,7 +743,7 @@ void paintGL(void)
 		}
 
 		//Draw Ring
-		// Model 2: Ring
+		// Rings
 		glBindVertexArray(VAOs[3]);
 		/// Texture
 		glActiveTexture(GL_TEXTURE1);
@@ -759,7 +761,23 @@ void paintGL(void)
 		/// Draw
 		glDrawArrays(GL_TRIANGLES, 0, drawSizes[3]);
 	}
-	
+
+	// Planets
+	///Load model and textures
+	glBindVertexArray(VAOs[4]);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, textures[6]);
+	glUniform1i(textureID, 1);
+	/// Transformation
+	mat4 modelPlanetTransformationMatrix = glm::translate(mat4(1.0f), vec3(60, 0, 80));
+	mat4 modelPlanetScale = glm::scale(mat4(1.0f), glm::vec3(5.0f));
+	modelPlanetTransformationMatrix = modelPlanetTransformationMatrix * modelPlanetScale;
+	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelPlanetTransformationMatrix[0][0]);
+	PVM = projection * view * modelPlanetTransformationMatrix;
+	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
+	/// Draw
+	glDrawArrays(GL_TRIANGLES, 0, drawSizes[4]);
+
 	//Asteroids
 	for (int i = 0; i < asteroidCount; i++)
 	{
@@ -777,9 +795,10 @@ void paintGL(void)
 		float x = (1 + asteroidTranslations[i].x) * cos(glm::radians(frame * y_delta * 2 + i * 20)) + 5.5f;
 		float z = (asteroidTranslations[i].z) * sin(glm::radians(frame * y_delta * 2 + i * 20)) + 5.5f;//Circles in Ellipse Shape
 		/// Transformation
+		mat4 modelCTranslateRelocate = glm::translate(mat4(1.0f), vec3(60, 0, 80));
 		mat4 modelCTranslate = glm::translate(mat4(1.0f), vec3(x, asteroidTranslations[i].y, z)); //Rotation
 		mat4 modelCRotate = glm::rotate(mat4(1.0f), glm::radians(y_delta * frame), vec3(0, 1, 0));
-		mat4 modelCTransformMatrix = modelCTranslate * modelCRotate; //Rotate --> Scale --> Translate
+		mat4 modelCTransformMatrix = modelCTranslate * modelCTranslateRelocate * modelCRotate; //Rotate --> Scale --> Translate
 		glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelCTransformMatrix[0][0]);
 		PVM = projection * view * modelCTransformMatrix;
 		glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
@@ -792,7 +811,7 @@ void paintGL(void)
 			(z - 0.5f) < spacecraftZ && (z + 1.5f) > spacecraftZ) asteroidDisappear[i] = true;
 	}
 	
-	// Model 1: SpaceCraft
+	// SpaceCraft
 	glBindVertexArray(VAOs[0]);
 	/// Green Colouring
 	if (changeColour)
