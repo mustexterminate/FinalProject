@@ -63,7 +63,7 @@ GLuint vertexBuffers[5];
 GLuint uvBuffers[5];
 GLuint normalBuffers[5];
 GLuint drawSizes[5];
-GLuint textures[7];
+GLuint textures[9];
 GLuint skybox_cubemapTexture;
 const vec3 ringTranslations[] = {vec3(0.0f, 5.0f, 10.0f), vec3(2.0f, 5.0f, 18.0f), vec3(-4.0f, 5.0f, 26.0f)};
 const int asteroidCount = 50;
@@ -554,6 +554,8 @@ void sendDataToOpenGL()
 	textures[4] = loadBMP_custom("sources/texture/theme3.bmp");
 	textures[5] = loadBMP_custom("sources/texture/RockTexture.bmp");
 	textures[6] = loadBMP_custom("sources/texture/WonderStarTexture.bmp");
+	textures[7] = loadBMP_custom("sources/texture/earthTexture.bmp");
+	textures[8] = loadBMP_custom("sources/texture/earth_normal.bmp");
 	//Skybox Cube
 	GLfloat skyboxVertices[] = {
 		// positions          
@@ -770,15 +772,32 @@ void paintGL(void)
 	glUniform3fv(collideUniformLocation, 1, &collide[0]);
 
 	// Planets
+	//Wonderstar
 	///Load model and textures
 	glBindVertexArray(VAOs[4]);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, textures[6]);
 	glUniform1i(textureID, 1);
 	/// Transformation
-	mat4 modelPlanetTransformationMatrix = glm::translate(mat4(1.0f), vec3(60, 0, 80));
+	mat4 modelPlanetTransformationMatrix = glm::translate(mat4(1.0f), vec3(60, 0, 90));
 	mat4 modelPlanetScale = glm::scale(mat4(1.0f), glm::vec3(5.0f));
-	modelPlanetTransformationMatrix = modelPlanetTransformationMatrix * modelPlanetScale;
+	mat4 modelPlanetRotation = glm::rotate(mat4(1.0f), glm::radians(90.0f), vec3(0, 0, 1));
+	modelPlanetRotation = glm::rotate(modelPlanetRotation, glm::radians(frame * y_delta * 0.3f), vec3(1, 0, 0));
+	modelPlanetTransformationMatrix = modelPlanetTransformationMatrix * modelPlanetScale * modelPlanetRotation;
+	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelPlanetTransformationMatrix[0][0]);
+	PVM = projection * view * modelPlanetTransformationMatrix;
+	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
+	/// Draw
+	glDrawArrays(GL_TRIANGLES, 0, drawSizes[4]);
+
+	// Earth
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, textures[7]);
+	modelPlanetTransformationMatrix = glm::translate(mat4(1.0f), vec3(-60, 0, 80));
+	modelPlanetScale = glm::scale(mat4(1.0f), glm::vec3(5.0f));
+	modelPlanetRotation = glm::rotate(mat4(1.0f), glm::radians(-90.0f), vec3(0, 0, 1));
+	modelPlanetRotation = glm::rotate(modelPlanetRotation, glm::radians(frame * y_delta * 0.5f), vec3(1, 0, 0));
+	modelPlanetTransformationMatrix = modelPlanetTransformationMatrix * modelPlanetScale * modelPlanetRotation;
 	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelPlanetTransformationMatrix[0][0]);
 	PVM = projection * view * modelPlanetTransformationMatrix;
 	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
