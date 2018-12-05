@@ -1,20 +1,20 @@
 ﻿  main.cpp
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(227): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(230): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(233): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(236): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(239): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(242): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(245): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(248): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(251): warning C4305: '+=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(254): warning C4305: '-=': truncation from 'double' to 'float'
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(262): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(228): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(231): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(234): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(237): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(240): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(243): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(246): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(249): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(252): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(255): warning C4305: '-=': truncation from 'double' to 'float'
 c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(263): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(266): warning C4244: '-=': conversion from 'float' to 'int', possible loss of data
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(264): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
 c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(267): warning C4244: '-=': conversion from 'float' to 'int', possible loss of data
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(270): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(271): warning C4244: '-=': conversion from 'float' to 'int', possible loss of data
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(274): warning C4244: '-=': conversion from 'float' to 'int', possible loss of data
-c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(275): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(268): warning C4244: '-=': conversion from 'float' to 'int', possible loss of data
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(271): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(272): warning C4244: '-=': conversion from 'float' to 'int', possible loss of data
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(275): warning C4244: '-=': conversion from 'float' to 'int', possible loss of data
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(276): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
   FinalProj.vcxproj -> C:\Users\u3158\source\repos\FinalProject\x64\Debug\FinalProj.exe

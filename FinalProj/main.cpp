@@ -66,7 +66,8 @@ GLuint drawSizes[5];
 GLuint textures[9];
 GLuint skybox_cubemapTexture;
 const vec3 ringTranslations[] = {vec3(0.0f, 5.0f, 10.0f), vec3(2.0f, 5.0f, 18.0f), vec3(-4.0f, 5.0f, 26.0f)};
-const int asteroidCount = 50;
+//Asteroid Count
+const int asteroidCount = 200;
 vec3 asteroidTranslations[asteroidCount];
 bool asteroidDisappear[asteroidCount];
 
@@ -624,11 +625,13 @@ void sendDataToOpenGL()
 	//Asteroid Translations
 	for (int i = 0; i < asteroidCount; i++)
 	{
-		float x = (rand() % 200) / 25.0f + (rand() % 200) / 25.0f;
-		float y = rand() % 200 / 100.0f + rand() % 200 / 100.0f;
-		float z = (rand() % 200) / 25.0f + (rand() % 200) / 25.0f;
+		float x = (rand() % 200) / 20.0f + (rand() % 200) / 20.0f;
+		Sleep(rand() % 50);
+		float y = rand() % 200 / 90.0f + rand() % 200 / 90.0f;
+		Sleep(rand() % 50);
+		float z = (rand() % 200) / 20.0f + (rand() % 200) / 20.0f;
+		Sleep(rand() % 50);
 		asteroidTranslations[i] = vec3(x - 50.0f, y + 4, z);
-		printf("x: %f, y: %f, z:%f\n", x, y, z);
 	}
 }
 
@@ -818,8 +821,18 @@ void paintGL(void)
 		glBindTexture(GL_TEXTURE_2D, textures[5]);
 		glUniform1i(textureID, 1);
 		//Orbit
-		float x = (1 + asteroidTranslations[i].x) * cos(glm::radians(frame * y_delta * 2 + i * 20)) + 5.5f;
-		float z = (asteroidTranslations[i].z) * sin(glm::radians(frame * y_delta * 2 + i * 20)) + 5.5f;//Circles in Ellipse Shape
+		float x = 0;
+		float z = 0;
+		if (i % 2 == 0)
+		{
+			x = (1 + asteroidTranslations[i].x) * cos(glm::radians(frame * y_delta * 2 + i * 20)) + 5.5f;
+			z = (asteroidTranslations[i].z) * sin(glm::radians(frame * y_delta * 2 + i * 20)) + 5.5f;//Circles in Ellipse Shape
+		}
+		else
+		{
+			x = (1 + asteroidTranslations[i].x) * cos(glm::radians(360 - (frame * y_delta * 2 + i * 20))) + 5.5f;
+			z = (asteroidTranslations[i].z) * sin(glm::radians(360 - (frame * y_delta * 2 + i * 20))) + 5.5f;//Circles in Ellipse Shape
+		}
 		/// Transformation
 		mat4 modelCTranslateRelocate = glm::translate(mat4(1.0f), vec3(60, 0, 80));
 		mat4 modelCTranslate = glm::translate(mat4(1.0f), vec3(x, asteroidTranslations[i].y, z)); //Rotation
