@@ -54,16 +54,19 @@ GLuint textInd = 2;
 GLint programID;
 GLint skyboxID;
 GLuint textureID;
-
+GLuint normalTextureID;
+GLuint LightID;
 //Model Information
 GLuint skyboxVAO;
 GLuint skyboxVBO;
 GLuint VAOs[5];
 GLuint vertexBuffers[5];
+GLuint nVertexBuffer;
 GLuint uvBuffers[5];
 GLuint normalBuffers[5];
 GLuint drawSizes[5];
-GLuint textures[7];
+GLuint textures[8];
+GLuint nTexture;
 GLuint skybox_cubemapTexture;
 const vec3 ringTranslations[] = {vec3(0.0f, 5.0f, 10.0f), vec3(2.0f, 5.0f, 18.0f), vec3(-4.0f, 5.0f, 26.0f)};
 const int asteroidCount = 50;
@@ -280,6 +283,52 @@ void PassiveMouse(int x, int y)
 {
 	glutWarpPointer(800 / 2, 600 / 2);
 	horizontalAngle += mouseSpeed * float(800 / 2 - x);
+}
+
+
+void computeTangentBasis(
+	// inputs
+	std::vector<glm::vec3> & vertices,
+	std::vector<glm::vec2> & uvs,
+	std::vector<glm::vec3> & normals,
+	// outputs
+	std::vector<glm::vec3> & tangents,
+	std::vector<glm::vec3> & bitangents
+) {
+	for (int i = 0; i < vertices.size(); i += 3) {
+
+		// Shortcuts for vertices
+		glm::vec3 & v0 = vertices[i + 0];
+		glm::vec3 & v1 = vertices[i + 1];
+		glm::vec3 & v2 = vertices[i + 2];
+
+		// Shortcuts for UVs
+		glm::vec2 & uv0 = uvs[i + 0];
+		glm::vec2 & uv1 = uvs[i + 1];
+		glm::vec2 & uv2 = uvs[i + 2];
+
+		// Edges of the triangle : position delta
+		glm::vec3 deltaPos1 = v1 - v0;
+		glm::vec3 deltaPos2 = v2 - v0;
+
+		// UV delta
+		glm::vec2 deltaUV1 = uv1 - uv0;
+		glm::vec2 deltaUV2 = uv2 - uv0;
+
+		float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+		glm::vec3 tangent = (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y)*r;
+		glm::vec3 bitangent = (deltaPos2 * deltaUV1.x - deltaPos1 * deltaUV2.x)*r;
+		// Set the same tangent for all three vertices of the triangle.
+		// They will be merged later, in vboindexer.cpp
+		tangents.push_back(tangent);
+		tangents.push_back(tangent);
+		tangents.push_back(tangent);
+
+		// Same thing for bitangents
+		bitangents.push_back(bitangent);
+		bitangents.push_back(bitangent);
+		bitangents.push_back(bitangent);
+	}
 }
 
 bool loadOBJ(
@@ -502,6 +551,12 @@ void sendModelData(const char* modelpath, int modelIndex)
 	std::vector<glm::vec2> uvs;
 	std::vector<glm::vec3> normals;
 	bool res = loadOBJ(modelpath, vertices, uvs, normals);
+	std::vector<glm::vec3> tangents;
+	std::vector<glm::vec3> bitangents;
+	computeTangentBasis(
+		vertices, uvs, normals, // input
+		tangents, bitangents    // output
+	);
 
 	//VAO
 	glGenVertexArrays(1, &VAOs[modelIndex]);
@@ -528,6 +583,37 @@ void sendModelData(const char* modelpath, int modelIndex)
 	glEnableVertexAttribArray(2);
 	glBindBuffer(GL_ARRAY_BUFFER, normalBuffers[modelIndex]);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	///Tangent
+	GLuint tangentbuffer;
+	glGenBuffers(1, &tangentbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, tangentbuffer);
+	glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(glm::vec3), &tangents[0], GL_STATIC_DRAW);
+	glEnableVertexAttribArray(3);
+	glBindBuffer(GL_ARRAY_BUFFER, tangentbuffer);
+	glVertexAttribPointer(
+		3,                                // attribute
+		3,                                // size
+		GL_FLOAT,                         // type
+		GL_FALSE,                         // normalized?
+		0,                                // stride
+		(void*)0                          // array buffer offset
+	);
+
+	///Bitangent
+	GLuint bitangentbuffer;
+	glGenBuffers(1, &bitangentbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, bitangentbuffer);
+	glBufferData(GL_ARRAY_BUFFER, bitangents.size() * sizeof(glm::vec3), &bitangents[0], GL_STATIC_DRAW);
+	glEnableVertexAttribArray(4);
+	glBindBuffer(GL_ARRAY_BUFFER, bitangentbuffer);
+	glVertexAttribPointer(
+		4,                                // attribute
+		3,                                // size
+		GL_FLOAT,                         // type
+		GL_FALSE,                         // normalized?
+		0,                                // stride
+		(void*)0                          // array buffer offset
+	);
 
 	//Size of Vertices
 	drawSizes[modelIndex] = (int)vertices.size();
@@ -554,6 +640,9 @@ void sendDataToOpenGL()
 	textures[4] = loadBMP_custom("sources/texture/theme3.bmp");
 	textures[5] = loadBMP_custom("sources/texture/RockTexture.bmp");
 	textures[6] = loadBMP_custom("sources/texture/WonderStarTexture.bmp");
+	textures[7] = loadBMP_custom("sources/texture/earthTexture.bmp");
+	nTexture = loadBMP_custom("sources/texture/earth_normal.bmp");
+
 	//Skybox Cube
 	GLfloat skyboxVertices[] = {
 		// positions          
@@ -618,6 +707,9 @@ void sendDataToOpenGL()
 
 
 	textureID = glGetUniformLocation(programID, "myTextureSampler");
+	normalTextureID = glGetUniformLocation(programID, "NormalTextureSampler");
+	GLuint ModelView3x3MatrixID = glGetUniformLocation(programID, "MV3x3");
+	LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
 
 	//Asteroid Translations
 	for (int i = 0; i < asteroidCount; i++)
@@ -630,6 +722,39 @@ void sendDataToOpenGL()
 	}
 }
 
+bool is_near(float v1, float v2) {
+	return fabs(v1 - v2) < 0.01f;
+}
+
+bool getSimilarVertexIndex(
+	glm::vec3 & in_vertex,
+	glm::vec2 & in_uv,
+	glm::vec3 & in_normal,
+	std::vector<glm::vec3> & out_vertices,
+	std::vector<glm::vec2> & out_uvs,
+	std::vector<glm::vec3> & out_normals,
+	unsigned short & result
+) {
+	// Lame linear search
+	for (unsigned int i = 0; i < out_vertices.size(); i++) {
+		if (
+			is_near(in_vertex.x, out_vertices[i].x) &&
+			is_near(in_vertex.y, out_vertices[i].y) &&
+			is_near(in_vertex.z, out_vertices[i].z) &&
+			is_near(in_uv.x, out_uvs[i].x) &&
+			is_near(in_uv.y, out_uvs[i].y) &&
+			is_near(in_normal.x, out_normals[i].x) &&
+			is_near(in_normal.y, out_normals[i].y) &&
+			is_near(in_normal.z, out_normals[i].z)
+			) {
+			result = i;
+			return true;
+		}
+	}
+	// No other vertex could be used instead.
+	// Looks like we'll have to add it to the VBO.
+	return false;
+}
 void paintGL(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -647,6 +772,7 @@ void paintGL(void)
 		0, //Y
 		-cos(glm::radians((float)horizontalAngle)) //Z
 	);
+	glUniform3f(LightID, lightPosition.x, lightPosition.y, lightPosition.z);
 	/// Projection & View
 	//Translate Camera to 6.0f behind the Model
 	//Translate Camera to objectPosition and 1 Y above object
@@ -692,9 +818,11 @@ void paintGL(void)
 	GLint collideUniformLocation = glGetUniformLocation(programID, "collideColour");
 	GLint diffLightUniformLocation = glGetUniformLocation(programID, "lightPowerDiff");
 	GLint specLightUniformLocation = glGetUniformLocation(programID, "lightPowerSpec");
-
+	
 	/// PVM
 	GLint transformationMatrixLocation = glGetUniformLocation(programID, "modelTransformMatrix");
+	GLint modelMatrixID = glGetUniformLocation(programID, "M");
+	GLuint viewMatrixID = glGetUniformLocation(programID, "V");
 	matrixLocation = glGetUniformLocation(programID, "PVM");
 
 	// Bind Defaults
@@ -777,6 +905,18 @@ void paintGL(void)
 	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
 	/// Draw
 	glDrawArrays(GL_TRIANGLES, 0, drawSizes[4]);
+
+	glBindTexture(GL_TEXTURE_2D, textures[7]);
+	glUniform1i(textureID, 1);
+	glBindTexture(GL_TEXTURE_2D, nTexture);
+	glUniform1i(normalTextureID, 1);
+	mat4 M = glm::translate(mat4(1.0f), vec3(-60, 0, 80));
+	modelPlanetScale = glm::scale(mat4(1.0f), glm::vec3(5.0f));
+	M = M * modelPlanetScale;
+	glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, &M[0][0]);
+	glUniformMatrix4fv(viewMatrixID, 1, GL_FALSE, &view[0][0]);
+	PVM = projection * view * M;
+	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
 
 	//Asteroids
 	for (int i = 0; i < asteroidCount; i++)
