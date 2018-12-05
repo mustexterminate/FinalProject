@@ -639,6 +639,7 @@ void paintGL(void)
 	/// Lighting
 	vec3 eyePosition(0.0f, eyePositionSpecY, -9.0f);
 	vec3 lightPosition(lightPositionSpecX, lightPositionSpecY, 2.0f);
+	vec3 lightPosition2(lightPositionSpecX + 10.0f, lightPositionSpecY, 2.0f);
 	vec3 ambientLight(0.6f, 0.6f, 0.6f);
 	vec3 collide(0, 0, 0);
 	vec3 objectPos = vec3(x_delta * x_press_num, 5, (z_delta * z_press_num));
@@ -688,6 +689,7 @@ void paintGL(void)
 	/// Lighting
 	GLint eyePositionUniformLocation = glGetUniformLocation(programID, "eyePositionWorld");
 	GLint lightPositionUniformLocation = glGetUniformLocation(programID, "lightPositionWorld");
+	GLint lightPositionUniformLocation2 = glGetUniformLocation(programID, "lightPositionWorld2");
 	GLint ambientLightUniformLocation = glGetUniformLocation(programID, "ambientLight");
 	GLint collideUniformLocation = glGetUniformLocation(programID, "collideColour");
 	GLint diffLightUniformLocation = glGetUniformLocation(programID, "lightPowerDiff");
@@ -701,6 +703,7 @@ void paintGL(void)
 	/// Lighting
 	glUniform3fv(eyePositionUniformLocation, 1, &eyePosition[0]);
 	glUniform3fv(lightPositionUniformLocation, 1, &lightPosition[0]);
+	glUniform3fv(lightPositionUniformLocation2, 1, &lightPosition2[0]);
 	glUniform3fv(ambientLightUniformLocation, 1, &ambientLight[0]);
 	glUniform3fv(collideUniformLocation, 1, &collide[0]);
 	glUniform1f(diffLightUniformLocation, lightPowerDiff);
@@ -761,6 +764,10 @@ void paintGL(void)
 		/// Draw
 		glDrawArrays(GL_TRIANGLES, 0, drawSizes[3]);
 	}
+
+	//Reset Collide
+	collide = vec3(0, 0.0, 0);
+	glUniform3fv(collideUniformLocation, 1, &collide[0]);
 
 	// Planets
 	///Load model and textures
