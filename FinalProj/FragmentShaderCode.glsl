@@ -15,6 +15,8 @@ uniform vec3 eyePositionWorld;
 uniform vec3 collideColour;
 uniform float lightPowerSpec;
 uniform float lightPowerDiff;
+uniform float lightPowerSpec2;
+uniform float lightPowerDiff2;
 
 void main()
 {
@@ -22,7 +24,7 @@ void main()
 	vec3 materialAmbientColor = texture( myTextureSampler, UV ).rgb;
 	vec4 materialDiffuseColor = vec4(texture( myTextureSampler, UV ).rgb, 1.0);
 	vec4 materialSpecularColor = vec4(0.8, 0.3, 0.3, 1.0);
-	vec3 LightColor = vec3(0.5,0.3,0.4);
+	vec3 LightColor = vec3(0.3,0.5,0.4);
 
 	// specular
 	vec3 reflectedLightVectorWorld = reflect(-lightPositionWorld, normalWorld);
@@ -54,8 +56,8 @@ void main()
 	vec4 diffuseLight2 = vec4(brightness2, brightness2, brightness2, 1.0);
 
 	vec4 EndColour2 = vec4(materialAmbientColor * ambientLight, 1.0)
-	+ (materialDiffuseColor * clamp(diffuseLight2, 0, 1) * vec4(LightColor, 1.0) * lightPowerDiff)
-	+ (materialSpecularColor * specularLight2 * vec4(LightColor, 1.0) * lightPowerSpec);
+	+ (materialDiffuseColor * clamp(diffuseLight2, 0, 1) * vec4(LightColor, 1.0) * lightPowerDiff2)
+	+ (materialSpecularColor * specularLight2 * vec4(LightColor, 1.0) * lightPowerSpec2);
 
 	daColor = (EndColour1 + EndColour2) / 1.3f + vec4(collideColour,1.0f);
 }

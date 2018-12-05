@@ -38,6 +38,9 @@ int x_press_num = 0;
 float lightPowerSpec = 0.5f;
 float lightPowerDiff = 0.3f;
 
+float lightPowerSpec2 = 0.7f;
+float lightPowerDiff2 = 0.5f;
+
 float lightPositionSpecX = 0.0f;
 float lightPositionSpecY = 3.0f;
 
@@ -209,32 +212,30 @@ void installShaders()
 
 void keyboard(unsigned char key, int x, int y)
 {
-	if (key == 's') {
-		spin = !spin;
-	}
-	if (key == '1') {
-		textInd = 2;
-	}
-	if (key == '2') {
-		textInd = 3;
-	}
-	if (key == '3') {
-		textInd = 4;
-	}
-	if (key == ' ') {
-		mouse = !mouse;
-	}
+
 	if (key == 'q') {
 		lightPowerDiff += 0.1;
 	}
 	if (key == 'w') {
 		lightPowerDiff -= 0.1;
 	}
-	if (key == 'z') {
+	if (key == 'a') {
 		lightPowerSpec += 0.1;
 	}
-	if (key == 'x') {
+	if (key == 's') {
 		lightPowerSpec -= 0.1;
+	}
+	if (key == 'e') {
+		lightPowerDiff2 += 0.1;
+	}
+	if (key == 'r') {
+		lightPowerDiff2 -= 0.1;
+	}
+	if (key == 'd') {
+		lightPowerSpec2 += 0.1;
+	}
+	if (key == 'f') {
+		lightPowerSpec2 -= 0.1;
 	}
 	if (key == 'j') {
 		lightPositionSpecX += 0.1;
@@ -699,6 +700,8 @@ void paintGL(void)
 	GLint collideUniformLocation = glGetUniformLocation(programID, "collideColour");
 	GLint diffLightUniformLocation = glGetUniformLocation(programID, "lightPowerDiff");
 	GLint specLightUniformLocation = glGetUniformLocation(programID, "lightPowerSpec");
+	GLint diffLightUniformLocation2 = glGetUniformLocation(programID, "lightPowerDiff2");
+	GLint specLightUniformLocation2 = glGetUniformLocation(programID, "lightPowerSpec2");
 
 	/// PVM
 	GLint transformationMatrixLocation = glGetUniformLocation(programID, "modelTransformMatrix");
@@ -713,10 +716,12 @@ void paintGL(void)
 	glUniform3fv(collideUniformLocation, 1, &collide[0]);
 	glUniform1f(diffLightUniformLocation, lightPowerDiff);
 	glUniform1f(specLightUniformLocation, lightPowerSpec);
+	glUniform1f(diffLightUniformLocation2, lightPowerDiff2);
+	glUniform1f(specLightUniformLocation2, lightPowerSpec2);
 
 	//Keeping this For Reference, to be removed when submitting [allows us to tell where the x & z axis expand to]
 	// Orientation Plane
-	glBindVertexArray(VAOs[2]);
+	/*glBindVertexArray(VAOs[2]);
 	/// Transformation
 	PVM = projection * view * modelMatrix;
 	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelMatrix[0][0]);
@@ -727,7 +732,7 @@ void paintGL(void)
 	glUniform1i(textureID, 2);
 	/// Draw
 	glDrawArrays(GL_TRIANGLES, 0, drawSizes[2]);
-
+	*/
 	//Rings
 	float spacecraftX = objectPos.x;
 	float spacecraftZ = objectPos.z;
