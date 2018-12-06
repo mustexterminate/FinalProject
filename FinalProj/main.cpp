@@ -719,20 +719,6 @@ void paintGL(void)
 	glUniform1f(diffLightUniformLocation2, lightPowerDiff2);
 	glUniform1f(specLightUniformLocation2, lightPowerSpec2);
 
-	//Keeping this For Reference, to be removed when submitting [allows us to tell where the x & z axis expand to]
-	// Orientation Plane
-	/*glBindVertexArray(VAOs[2]);
-	/// Transformation
-	PVM = projection * view * modelMatrix;
-	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelMatrix[0][0]);
-	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
-	/// Texture
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, textures[textInd]);
-	glUniform1i(textureID, 2);
-	/// Draw
-	glDrawArrays(GL_TRIANGLES, 0, drawSizes[2]);
-	*/
 	//Rings
 	float spacecraftX = objectPos.x;
 	float spacecraftZ = objectPos.z;
@@ -830,19 +816,18 @@ void paintGL(void)
 		float z = 0;
 		if (i % 2 == 0)
 		{
-			x = (1 + asteroidTranslations[i].x) * cos(glm::radians(frame * y_delta * 2 + i * 20)) + 5.5f;
-			z = (asteroidTranslations[i].z) * sin(glm::radians(frame * y_delta * 2 + i * 20)) + 5.5f;//Circles in Ellipse Shape
+			x = (1 + asteroidTranslations[i].x) * cos(glm::radians(frame * y_delta * 2 + i * 20)) + 50.0f;
+			z = (asteroidTranslations[i].z) * sin(glm::radians(frame * y_delta * 2 + i * 20)) + 70.5f;//Circles in Ellipse Shape
 		}
 		else
 		{
-			x = (1 + asteroidTranslations[i].x) * cos(glm::radians(360 - (frame * y_delta * 2 + i * 20))) + 5.5f;
-			z = (asteroidTranslations[i].z) * sin(glm::radians(360 - (frame * y_delta * 2 + i * 20))) + 5.5f;//Circles in Ellipse Shape
+			x = (1 + asteroidTranslations[i].x) * cos(glm::radians(360 - (frame * y_delta * 2 + i * 20))) + 50.0f;
+			z = (asteroidTranslations[i].z) * sin(glm::radians(360 - (frame * y_delta * 2 + i * 20))) + 70.5f;//Circles in Ellipse Shape
 		}
 		/// Transformation
-		mat4 modelCTranslateRelocate = glm::translate(mat4(1.0f), vec3(60, 0, 80));
 		mat4 modelCTranslate = glm::translate(mat4(1.0f), vec3(x, asteroidTranslations[i].y, z)); //Rotation
 		mat4 modelCRotate = glm::rotate(mat4(1.0f), glm::radians(y_delta * frame), vec3(0, 1, 0));
-		mat4 modelCTransformMatrix = modelCTranslate * modelCTranslateRelocate * modelCRotate; //Rotate --> Scale --> Translate
+		mat4 modelCTransformMatrix = modelCTranslate * modelCRotate; //Rotate --> Scale --> Translate
 		glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelCTransformMatrix[0][0]);
 		PVM = projection * view * modelCTransformMatrix;
 		glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
@@ -851,8 +836,8 @@ void paintGL(void)
 		//Collision Detection
 		
 		///Change Colour if Collision Detected
-		if ((x - 0.5f) < spacecraftX && (x + 1.5f) > spacecraftX &&
-			(z - 0.5f) < spacecraftZ && (z + 1.5f) > spacecraftZ) asteroidDisappear[i] = true;
+		if ((x - 2.0f) < spacecraftX && (x + 2.0f) > spacecraftX &&
+			(z - 2.0f) < spacecraftZ && (z + 2.0f) > spacecraftZ) asteroidDisappear[i] = true;
 	}
 	
 	// SpaceCraft
