@@ -125,8 +125,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="FragmentShaderCode.glsl" />
+    <None Include="FragmentShaderNormal.glsl" />
     <None Include="FragmentShaderSkybox.glsl" />
     <None Include="VertexShaderCode.glsl" />
+    <None Include="VertexShaderNormal.glsl" />
     <None Include="VertexShaderSkybox.glsl" />
   </ItemGroup>
   <ItemGroup>

@@ -56,6 +56,9 @@ glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 GLuint textInd = 2;
 GLint programID;
 GLint skyboxID;
+GLint normalID;
+
+//TextureLocation
 GLuint textureID;
 
 //Model Information
@@ -65,6 +68,7 @@ GLuint VAOs[5];
 GLuint vertexBuffers[5];
 GLuint uvBuffers[5];
 GLuint normalBuffers[5];
+GLuint tangentBuffers[5];
 GLuint drawSizes[5];
 GLuint textures[9];
 GLuint skybox_cubemapTexture;
@@ -207,6 +211,35 @@ void installShaders()
 	glDeleteShader(vertexShaderID);
 	glDeleteShader(fragmentShaderID);
 
+	//normalID
+	vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
+	fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+
+	temp = readShaderCode("VertexShaderNormal.glsl");
+	adapter[0] = temp.c_str();
+	glShaderSource(vertexShaderID, 1, adapter, 0);
+	temp = readShaderCode("FragmentShaderNormal.glsl");
+	adapter[0] = temp.c_str();
+	glShaderSource(fragmentShaderID, 1, adapter, 0);
+
+	glCompileShader(vertexShaderID);
+	glCompileShader(fragmentShaderID);
+
+	if (!checkShaderStatus(vertexShaderID) || !checkShaderStatus(fragmentShaderID))
+		return;
+
+	normalID = glCreateProgram();
+	glAttachShader(normalID, vertexShaderID);
+	glAttachShader(normalID, fragmentShaderID);
+	///
+	glLinkProgram(normalID);
+
+	if (!checkProgramStatus(normalID))
+		return;
+
+	glDeleteShader(vertexShaderID);
+	glDeleteShader(fragmentShaderID);
+
 	glUseProgram(programID);
 }
 
@@ -288,7 +321,8 @@ bool loadOBJ(
 	const char * path,
 	std::vector<glm::vec3> & out_vertices,
 	std::vector<glm::vec2> & out_uvs,
-	std::vector<glm::vec3> & out_normals
+	std::vector<glm::vec3> & out_normals,
+	std::vector<glm::vec3> & out_tangents
 ) {
 	printf("Loading OBJ file %s...\n", path);
 
@@ -366,18 +400,52 @@ bool loadOBJ(
 		glm::vec3 vertex = temp_vertices[vertexIndex - 1];
 		glm::vec2 uv = temp_uvs[uvIndex - 1];
 		glm::vec3 normal = temp_normals[normalIndex - 1];
+		int startTriangle = i - 3 + i % 3;
 
 		// Put the attributes in buffers
 		out_vertices.push_back(vertex);
 		out_uvs.push_back(uv);
 		out_normals.push_back(normal);
 
+
+		if (i % 3 == 2)
+		{
+			// Shortcuts for vertices
+			glm::vec3 & v0 = out_vertices[i - 2];
+			glm::vec3 & v1 = out_vertices[i - 1];
+			glm::vec3 & v2 = out_vertices[i];
+
+			// Shortcuts for UVs
+			glm::vec2 & uv0 = out_uvs[i - 2];
+			glm::vec2 & uv1 = out_uvs[i - 1];
+			glm::vec2 & uv2 = out_uvs[i];
+
+			// Edges of the triangle : position delta
+			glm::vec3 deltaPos1 = v1 - v0;
+			glm::vec3 deltaPos2 = v2 - v0;
+
+			// UV delta
+			glm::vec2 deltaUV1 = uv1 - uv0;
+			glm::vec2 deltaUV2 = uv2 - uv0;
+
+			//Tangent
+			float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+			glm::vec3 tangent = vec3(1.0f);
+			tangent.x = r * (deltaUV2.y * deltaPos1.x - deltaUV1.y * deltaPos2.x);
+			tangent.y = r * (deltaUV2.y * deltaPos1.y - deltaUV1.y * deltaPos2.y);
+			tangent.z = r * (deltaUV2.y * deltaPos1.z - deltaUV1.y * deltaPos2.z);
+			tangent = glm::normalize(tangent);
+
+			out_tangents.push_back(tangent);
+			out_tangents.push_back(tangent);
+			out_tangents.push_back(tangent);
+		}
 	}
 
 	return true;
 }
 
-GLuint loadBMP_custom(const char * imagepath) {
+GLuint loadBMP_custom(const char * imagepath, GLenum texture_type = GL_TEXTURE_2D) {
 
 	printf("Reading image %s\n", imagepath);
 
@@ -416,15 +484,15 @@ GLuint loadBMP_custom(const char * imagepath) {
 	
 	glGenTextures(1, &textureID);
 
-	glBindTexture(GL_TEXTURE_2D, textureID);
+	glBindTexture(texture_type, textureID);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(texture_type, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glGenerateMipmap(GL_TEXTURE_2D);
+	glTexParameteri(texture_type, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(texture_type, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(texture_type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(texture_type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glGenerateMipmap(texture_type);
 
 	delete[] data;
 	return textureID;
@@ -503,7 +571,8 @@ void sendModelData(const char* modelpath, int modelIndex)
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec2> uvs;
 	std::vector<glm::vec3> normals;
-	bool res = loadOBJ(modelpath, vertices, uvs, normals);
+	std::vector<glm::vec3> tangents;
+	bool res = loadOBJ(modelpath, vertices, uvs, normals, tangents);
 
 	//VAO
 	glGenVertexArrays(1, &VAOs[modelIndex]);
@@ -529,6 +598,13 @@ void sendModelData(const char* modelpath, int modelIndex)
 	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(2);
 	glBindBuffer(GL_ARRAY_BUFFER, normalBuffers[modelIndex]);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	///Tangents
+	glGenBuffers(1, &tangentBuffers[modelIndex]);
+	glBindBuffer(GL_ARRAY_BUFFER, tangentBuffers[modelIndex]);
+	glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(glm::vec3), &tangents[0], GL_STATIC_DRAW);
+	glEnableVertexAttribArray(3);
+	glBindBuffer(GL_ARRAY_BUFFER, tangentBuffers[modelIndex]);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
 	//Size of Vertices
@@ -765,39 +841,6 @@ void paintGL(void)
 	collide = vec3(0, 0.0, 0);
 	glUniform3fv(collideUniformLocation, 1, &collide[0]);
 
-	// Planets
-	//Wonderstar
-	///Load model and textures
-	glBindVertexArray(VAOs[4]);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, textures[6]);
-	glUniform1i(textureID, 1);
-	/// Transformation
-	mat4 modelPlanetTransformationMatrix = glm::translate(mat4(1.0f), vec3(60, 0, 90));
-	mat4 modelPlanetScale = glm::scale(mat4(1.0f), glm::vec3(5.0f));
-	mat4 modelPlanetRotation = glm::rotate(mat4(1.0f), glm::radians(90.0f), vec3(0, 0, 1));
-	modelPlanetRotation = glm::rotate(modelPlanetRotation, glm::radians(frame * y_delta * 0.3f), vec3(1, 0, 0));
-	modelPlanetTransformationMatrix = modelPlanetTransformationMatrix * modelPlanetScale * modelPlanetRotation;
-	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelPlanetTransformationMatrix[0][0]);
-	PVM = projection * view * modelPlanetTransformationMatrix;
-	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
-	/// Draw
-	glDrawArrays(GL_TRIANGLES, 0, drawSizes[4]);
-
-	// Earth
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, textures[7]);
-	modelPlanetTransformationMatrix = glm::translate(mat4(1.0f), vec3(-60, 0, 80));
-	modelPlanetScale = glm::scale(mat4(1.0f), glm::vec3(5.0f));
-	modelPlanetRotation = glm::rotate(mat4(1.0f), glm::radians(-90.0f), vec3(0, 0, 1));
-	modelPlanetRotation = glm::rotate(modelPlanetRotation, glm::radians(frame * y_delta * 0.5f), vec3(1, 0, 0));
-	modelPlanetTransformationMatrix = modelPlanetTransformationMatrix * modelPlanetScale * modelPlanetRotation;
-	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelPlanetTransformationMatrix[0][0]);
-	PVM = projection * view * modelPlanetTransformationMatrix;
-	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
-	/// Draw
-	glDrawArrays(GL_TRIANGLES, 0, drawSizes[4]);
-
 	//Asteroids
 	for (int i = 0; i < asteroidCount; i++)
 	{
@@ -864,6 +907,84 @@ void paintGL(void)
 	glUniform1i(textureID, 0);
 	/// Draw
 	glDrawArrays(GL_TRIANGLES, 0, drawSizes[0]);
+
+	//Reset
+	collide = vec3(0, 0.0, 0);
+	glUniform3fv(collideUniformLocation, 1, &collide[0]);
+
+	// Planets
+	//Wonderstar
+	///Load model and textures
+	glBindVertexArray(VAOs[4]);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, textures[6]);
+	glUniform1i(textureID, 1);
+	/// Transformation
+	mat4 modelPlanetTransformationMatrix = glm::translate(mat4(1.0f), vec3(60, 0, 90));
+	mat4 modelPlanetScale = glm::scale(mat4(1.0f), glm::vec3(5.0f));
+	mat4 modelPlanetRotation = glm::rotate(mat4(1.0f), glm::radians(90.0f), vec3(0, 0, 1));
+	modelPlanetRotation = glm::rotate(modelPlanetRotation, glm::radians(frame * y_delta * 0.3f), vec3(1, 0, 0));
+	modelPlanetTransformationMatrix = modelPlanetTransformationMatrix * modelPlanetScale * modelPlanetRotation;
+	glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, &modelPlanetTransformationMatrix[0][0]);
+	PVM = projection * view * modelPlanetTransformationMatrix;
+	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &PVM[0][0]);
+	/// Draw
+	glDrawArrays(GL_TRIANGLES, 0, drawSizes[4]);
+
+	glUseProgram(normalID);
+	// Get Locations
+	/// Lighting
+	GLint normal_eyePositionUniformLocation = glGetUniformLocation(normalID, "eyePositionWorld");
+	GLint normal_lightPositionUniformLocation = glGetUniformLocation(normalID, "lightPositionWorld");
+	GLint normal_lightPositionUniformLocation2 = glGetUniformLocation(normalID, "lightPositionWorld2");
+	GLint normal_ambientLightUniformLocation = glGetUniformLocation(normalID, "ambientLight");
+	GLint normal_collideUniformLocation = glGetUniformLocation(normalID, "collideColour");
+	GLint normal_diffLightUniformLocation = glGetUniformLocation(normalID, "lightPowerDiff");
+	GLint normal_specLightUniformLocation = glGetUniformLocation(normalID, "lightPowerSpec");
+	GLint normal_diffLightUniformLocation2 = glGetUniformLocation(normalID, "lightPowerDiff2");
+	GLint normal_specLightUniformLocation2 = glGetUniformLocation(normalID, "lightPowerSpec2");
+
+	/// PVM
+	GLint normal_transformationMatrixLocation = glGetUniformLocation(normalID, "modelTransformMatrix");
+	GLint normal_PVMLocation = glGetUniformLocation(normalID, "PVM");
+	GLint normal_projectionLocation = glGetUniformLocation(normalID, "projection");
+	GLint normal_viewLocation = glGetUniformLocation(normalID, "viewMatrix");
+
+	// Bind Defaults
+	/// Lighting
+	glUniform3fv(normal_eyePositionUniformLocation, 1, &eyePosition[0]);
+	glUniform3fv(normal_lightPositionUniformLocation, 1, &lightPosition[0]);
+	glUniform3fv(normal_lightPositionUniformLocation2, 1, &lightPosition2[0]);
+	glUniform3fv(normal_ambientLightUniformLocation, 1, &ambientLight[0]);
+	glUniform3fv(normal_collideUniformLocation, 1, &collide[0]);
+	glUniform1f(normal_diffLightUniformLocation, lightPowerDiff);
+	glUniform1f(normal_specLightUniformLocation, lightPowerSpec);
+	glUniform1f(normal_diffLightUniformLocation2, lightPowerDiff2);
+	glUniform1f(normal_specLightUniformLocation2, lightPowerSpec2);
+	//Projection & View
+	glUniformMatrix4fv(normal_projectionLocation, 1, GL_FALSE, &projection[0][0]);
+	glUniformMatrix4fv(normal_viewLocation, 1, GL_FALSE, &view[0][0]);
+	// Earth
+	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(glGetUniformLocation(normalID, "myTextureSampler"), 0);
+	glBindTexture(GL_TEXTURE_2D, textures[7]);
+	glUniform1i(textureID, 0);
+
+	glActiveTexture(GL_TEXTURE1);
+	glUniform1i(glGetUniformLocation(normalID, "normalSampler"), 0);
+	glBindTexture(GL_TEXTURE_2D, textures[8]);
+	glUniform1i(textureID, 1);
+
+	modelPlanetTransformationMatrix = glm::translate(mat4(1.0f), vec3(-60, 0, 80));
+	modelPlanetScale = glm::scale(mat4(1.0f), glm::vec3(5.0f));
+	modelPlanetRotation = glm::rotate(mat4(1.0f), glm::radians(-90.0f), vec3(0, 0, 1));
+	modelPlanetRotation = glm::rotate(modelPlanetRotation, glm::radians(frame * y_delta * 0.5f), vec3(1, 0, 0));
+	modelPlanetTransformationMatrix = modelPlanetTransformationMatrix * modelPlanetScale * modelPlanetRotation;
+	glUniformMatrix4fv(normal_transformationMatrixLocation, 1, GL_FALSE, &modelPlanetTransformationMatrix[0][0]);
+	PVM = projection * view * modelPlanetTransformationMatrix;
+	glUniformMatrix4fv(normal_PVMLocation, 1, GL_FALSE, &PVM[0][0]);
+	/// Draw
+	glDrawArrays(GL_TRIANGLES, 0, drawSizes[4]);
 
 	glFlush();
 	glutPostRedisplay();
