@@ -21,4 +21,8 @@ c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(305): warning C4244:
 c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(306): warning C4244: '-=': conversion from 'float' to 'int', possible loss of data
 c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(309): warning C4244: '-=': conversion from 'float' to 'int', possible loss of data
 c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(310): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(863): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(864): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(869): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\u3158\source\repos\finalproject\finalproj\main.cpp(870): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
   FinalProj.vcxproj -> C:\Users\u3158\source\repos\FinalProject\x64\Debug\FinalProj.exe

@@ -708,7 +708,7 @@ void sendDataToOpenGL()
 		Sleep(rand() % 50);
 		float z = (rand() % 200) / 20.0f + (rand() % 200) / 20.0f;
 		Sleep(rand() % 50);
-		asteroidTranslations[i] = vec3(x - 50.0f, y + 4, z);
+		asteroidTranslations[i] = vec3(x, y + 4, z);
 	}
 }
 
@@ -859,13 +859,15 @@ void paintGL(void)
 		float z = 0;
 		if (i % 2 == 0)
 		{
-			x = (1 + asteroidTranslations[i].x) * cos(glm::radians(frame * y_delta * 2 + i * 20)) + 50.0f;
-			z = (asteroidTranslations[i].z) * sin(glm::radians(frame * y_delta * 2 + i * 20)) + 70.5f;//Circles in Ellipse Shape
+			//Radius * Rotation Part + Translation
+			x = (25.0 + asteroidTranslations[i].x) * cos(glm::radians(frame * y_delta * 2 + i * 20)) + 60.0f;
+			z = (20.0 + asteroidTranslations[i].z) * sin(glm::radians(frame * y_delta * 2 + i * 20)) + 5.0f;//Circles in Ellipse Shape
 		}
 		else
 		{
-			x = (1 + asteroidTranslations[i].x) * cos(glm::radians(360 - (frame * y_delta * 2 + i * 20))) + 50.0f;
-			z = (asteroidTranslations[i].z) * sin(glm::radians(360 - (frame * y_delta * 2 + i * 20))) + 70.5f;//Circles in Ellipse Shape
+			//Radius * Rotation Part + Translation
+			x = (25.0 + asteroidTranslations[i].x) * cos(glm::radians(360 - (frame * y_delta * 2 + i * 20))) + 60.0f;
+			z = (20.0 + asteroidTranslations[i].z) * sin(glm::radians(360 - (frame * y_delta * 2 + i * 20))) + 5.0f;//Circles in Ellipse Shape
 		}
 		/// Transformation
 		mat4 modelCTranslate = glm::translate(mat4(1.0f), vec3(x, asteroidTranslations[i].y, z)); //Rotation
@@ -920,7 +922,7 @@ void paintGL(void)
 	glBindTexture(GL_TEXTURE_2D, textures[6]);
 	glUniform1i(textureID, 1);
 	/// Transformation
-	mat4 modelPlanetTransformationMatrix = glm::translate(mat4(1.0f), vec3(60, 0, 90));
+	mat4 modelPlanetTransformationMatrix = glm::translate(mat4(1.0f), vec3(50, 0, 0));
 	mat4 modelPlanetScale = glm::scale(mat4(1.0f), glm::vec3(5.0f));
 	mat4 modelPlanetRotation = glm::rotate(mat4(1.0f), glm::radians(90.0f), vec3(0, 0, 1));
 	modelPlanetRotation = glm::rotate(modelPlanetRotation, glm::radians(frame * y_delta * 0.3f), vec3(1, 0, 0));
